@@ -5,6 +5,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -13,7 +14,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  ScrollView,
+} from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PlanetRow from "@/components/PlanetRow";
 import { MONTHS } from "@/constants/appConstants";
@@ -80,17 +84,13 @@ export default function NatalScreen() {
     bottomSheetRef.current?.close();
   }, []);
 
-  const handleShowLocationResults = () => {
-    if (locationResults.length > 0) bottomSheetRef.current?.expand();
-  };
-
   const canSubmit = form.day && form.year && selectedLocation;
 
   const handleSubmit = () => {
     if (!canSubmit || !selectedLocation) return;
     setIsLoading(true);
     try {
-      const monthIndex = MONTHS.indexOf(form.month || "January"); // 0-based for Origin
+      const monthIndex = MONTHS.indexOf(form.month || "January");
       const hour = parseInt(form.hour || "12");
       const minute = parseInt(form.minutes || "0");
 
@@ -161,122 +161,131 @@ export default function NatalScreen() {
             style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
-            <View style={{ flex: 1 }}>
-              <Text style={styles.screenTitle}>Natal chart</Text>
+            <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.screenTitle}>Natal chart</Text>
 
-              {/* Date row */}
-              <Text style={styles.fieldLabel}>Date of birth</Text>
-              <View style={styles.dateRow}>
-                <TextInput
-                  style={[styles.input, styles.inputSmall]}
-                  placeholder="Day"
-                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  keyboardType="numeric"
-                  maxLength={2}
-                  value={form.day}
-                  onChangeText={(v) => updateForm("day", v)}
-                />
-                <TouchableOpacity
-                  style={[styles.input, styles.inputMonth]}
-                  onPress={() => bottomSheetRef.current?.expand()}
-                >
-                  <Text
-                    style={
-                      form.month ? styles.inputText : styles.inputPlaceholder
-                    }
+                {/* Date row */}
+                <Text style={styles.fieldLabel}>Date of birth</Text>
+                <View style={styles.dateRow}>
+                  <TextInput
+                    style={[styles.input, styles.inputSmall]}
+                    placeholder="Day"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    keyboardType="numeric"
+                    maxLength={2}
+                    value={form.day}
+                    onChangeText={(v) => updateForm("day", v)}
+                  />
+                  <TouchableOpacity
+                    style={[styles.input, styles.inputMonth]}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      bottomSheetRef.current?.expand();
+                    }}
                   >
-                    {form.month || "Month"}
-                  </Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[styles.input, styles.inputSmall]}
-                  placeholder="Year"
-                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  keyboardType="numeric"
-                  maxLength={4}
-                  value={form.year}
-                  onChangeText={(v) => updateForm("year", v)}
-                />
-              </View>
-
-              {/* Time row */}
-              <Text style={styles.fieldLabel}>
-                Time of birth <Text style={styles.optional}>(optional)</Text>
-              </Text>
-              <View style={styles.dateRow}>
-                <TextInput
-                  style={[styles.input, styles.inputSmall]}
-                  placeholder="Hour"
-                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  keyboardType="numeric"
-                  maxLength={2}
-                  value={form.hour}
-                  onChangeText={(v) => updateForm("hour", v)}
-                />
-                <Text style={styles.colon}>:</Text>
-                <TextInput
-                  style={[styles.input, styles.inputSmall]}
-                  placeholder="Min"
-                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  keyboardType="numeric"
-                  maxLength={2}
-                  value={form.minutes}
-                  onChangeText={(v) => updateForm("minutes", v)}
-                />
-              </View>
-
-              {/* Location */}
-              <Text style={styles.fieldLabel}>Place of birth</Text>
-              <View style={styles.locationRow}>
-                <TextInput
-                  style={[styles.input, { flex: 1 }]}
-                  placeholder="City, country"
-                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  value={form.location}
-                  onChangeText={(v) => updateForm("location", v)}
-                  onSubmitEditing={handleLocationSearch}
-                  returnKeyType="search"
-                />
-                <TouchableOpacity
-                  style={styles.searchIconBtn}
-                  onPress={handleLocationSearch}
-                >
-                  {isLoadingLocations ? (
-                    <ActivityIndicator
-                      size="small"
-                      color="rgba(200,185,240,0.6)"
-                    />
-                  ) : (
-                    <Ionicons
-                      name="search-outline"
-                      size={16}
-                      color="rgba(200,185,240,0.6)"
-                    />
-                  )}
-                </TouchableOpacity>
-              </View>
-              {selectedLocation && (
-                <Text style={styles.selectedLocation} numberOfLines={1}>
-                  ✓ {selectedLocation.name}
-                </Text>
-              )}
-              {locationResults.length > 0 && (
-                <View style={styles.locationList}>
-                  {locationResults.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={styles.locationItem}
-                      onPress={() => handleSelectLocation(item)}
-                      activeOpacity={0.6}
+                    <Text
+                      style={
+                        form.month ? styles.inputText : styles.inputPlaceholder
+                      }
                     >
-                      <Text style={styles.locationItemText} numberOfLines={2}>
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                      {form.month || "Month"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.input, styles.inputSmall]}
+                    placeholder="Year"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    keyboardType="numeric"
+                    maxLength={4}
+                    value={form.year}
+                    onChangeText={(v) => updateForm("year", v)}
+                  />
                 </View>
-              )}
-            </View>
+
+                {/* Time row */}
+                <Text style={styles.fieldLabel}>
+                  Time of birth <Text style={styles.optional}>(optional)</Text>
+                </Text>
+                <View style={styles.dateRow}>
+                  <TextInput
+                    style={[styles.input, styles.inputSmall]}
+                    placeholder="Hour"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    keyboardType="numeric"
+                    maxLength={2}
+                    value={form.hour}
+                    onChangeText={(v) => updateForm("hour", v)}
+                  />
+                  <Text style={styles.colon}>:</Text>
+                  <TextInput
+                    style={[styles.input, styles.inputSmall]}
+                    placeholder="Min"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    keyboardType="numeric"
+                    maxLength={2}
+                    value={form.minutes}
+                    onChangeText={(v) => updateForm("minutes", v)}
+                  />
+                </View>
+
+                {/* Location */}
+                <Text style={styles.fieldLabel}>Place of birth</Text>
+                <View style={styles.locationRow}>
+                  <TextInput
+                    style={[styles.input, { flex: 1 }]}
+                    placeholder="City, country"
+                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    value={form.location}
+                    onChangeText={(v) => updateForm("location", v)}
+                    onSubmitEditing={handleLocationSearch}
+                    returnKeyType="search"
+                  />
+                  <TouchableOpacity
+                    style={styles.searchIconBtn}
+                    onPress={handleLocationSearch}
+                  >
+                    {isLoadingLocations ? (
+                      <ActivityIndicator
+                        size="small"
+                        color="rgba(200,185,240,0.6)"
+                      />
+                    ) : (
+                      <Ionicons
+                        name="search-outline"
+                        size={16}
+                        color="rgba(200,185,240,0.6)"
+                      />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                {selectedLocation && (
+                  <Text style={styles.selectedLocation} numberOfLines={1}>
+                    ✓ {selectedLocation.name}
+                  </Text>
+                )}
+                {locationResults.length > 0 && (
+                  <View style={styles.locationList}>
+                    {locationResults.map((item) => (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={styles.locationItem}
+                        onPress={() => handleSelectLocation(item)}
+                        activeOpacity={0.6}
+                      >
+                        <Text style={styles.locationItemText} numberOfLines={2}>
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
             {/* Submit */}
             <TouchableOpacity
               style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
