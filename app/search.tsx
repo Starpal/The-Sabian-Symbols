@@ -76,7 +76,7 @@ export default function SearchScreen() {
             <Ionicons
               name="arrow-back"
               size={20}
-              color="rgba(255,255,255,0.4)"
+              color="rgba(200,185,240,0.97)"
             />
           </TouchableOpacity>
         </View>
@@ -224,7 +224,9 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontFamily: "CormorantGaramond_300Light_Italic",
     fontSize: 44,
+    textAlign: "center",
     color: "rgba(255,255,255,0.9)",
+    marginTop: 24,
     marginBottom: 80,
   },
   fieldLabel: {

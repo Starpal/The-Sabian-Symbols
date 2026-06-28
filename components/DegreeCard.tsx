@@ -48,13 +48,15 @@ const styles = StyleSheet.create({
   },
   signRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
+    justifyContent:"center",
     gap: 10,
     marginBottom: 20,
   },
   signLabel: {
     fontFamily: "CormorantGaramond_600SemiBold",
-    fontSize: 28,
+    fontSize: 30,
     letterSpacing: 2,
     color: "rgba(200,185,240,0.97)",
     textTransform: "uppercase",
@@ -63,7 +65,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: StyleSheet.hairlineWidth,
     backgroundColor: "rgba(255,255,255,0.06)",
-    marginBottom: 20,
+    marginBottom: 40,
   },
   title: {
     fontFamily: "CormorantGaramond_400Regular_Italic",
@@ -75,7 +77,7 @@ const styles = StyleSheet.create({
   },
   keynote: {
     fontFamily: "Inter_300Light",
-    fontSize: 15,
+    fontSize: 17,
     letterSpacing: 2,
     color: "rgba(255,255,255,0.4)",
     textTransform: "uppercase",
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_300Light",
     fontSize: 25,
     color: "rgba(255,255,255,0.55)",
-    lineHeight: 28,
+    lineHeight: 29,
     textAlign: "justify",
   },
 });

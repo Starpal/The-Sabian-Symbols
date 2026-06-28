@@ -92,7 +92,7 @@ export default function ResultsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.4)" />
+          <Ionicons name="arrow-back" size={20} color="rgba(200,185,240,0.97)" />
         </TouchableOpacity>
         <View style={styles.navButtons}>
           <TouchableOpacity
@@ -104,7 +104,7 @@ export default function ResultsScreen() {
             <Ionicons
               name="chevron-back"
               size={18}
-              color="rgba(255,255,255,0.4)"
+              color="rgba(200,185,240,0.97)"
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -116,7 +116,7 @@ export default function ResultsScreen() {
             <Ionicons
               name="chevron-forward"
               size={18}
-              color="rgba(255,255,255,0.4)"
+              color="rgba(200,185,240,0.97)"
             />
           </TouchableOpacity>
         </View>
@@ -182,17 +182,17 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 48,
   },
-homeLink: {
-  width: "80%",
-  paddingVertical: 15,
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: "rgba(180,160,220,0.35)",
-  borderRadius: 2,
-  alignItems: "center",
-  alignSelf: "center",
-  marginTop: 50,
-  marginBottom: 24,
-},
+  homeLink: {
+    width: "80%",
+    paddingVertical: 15,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(180,160,220,0.35)",
+    borderRadius: 2,
+    alignItems: "center",
+    alignSelf: "center",
+    marginTop: 50,
+    marginBottom: 24,
+  },
   homeLinkText: {
     textTransform: "uppercase",
     fontFamily: "CormorantGaramond_400Regular",

@@ -146,7 +146,7 @@ export default function NatalScreen() {
             <Ionicons
               name="arrow-back"
               size={20}
-              color="rgba(255,255,255,0.4)"
+              color="rgba(200,185,240,0.97)"
             />
           </TouchableOpacity>
           {planetDegrees && (
@@ -416,7 +416,9 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_300Light_Italic",
     fontSize: 44,
     color: "rgba(255,255,255,0.9)",
-    marginBottom: 80,
+    marginTop: 20,
+    marginBottom: 60,
+    textAlign: "center",
   },
   fieldLabel: {
     fontFamily: "Inter_300Light",

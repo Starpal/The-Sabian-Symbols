@@ -51,22 +51,20 @@ export default function HomeScreen() {
         <HomeButton
           title="Search a Degree"
           icon="search-outline"
-          onPress={
-            () => router.push("/search")
-          }
+          onPress={() => router.push("/search")}
         />
         <HomeButton
           title="Natal Chart"
           icon="planet-outline"
-          onPress={
-            () => router.push("/natal")
-          }
+          onPress={() => router.push("/natal")}
         />
         <HomeButton
           title="Ask the Oracle"
           icon="sparkles-outline"
           variant="primary"
-          onPress={() => router.push({ pathname: '/results', params: { mode: 'random' } })}
+          onPress={() =>
+            router.push({ pathname: "/results", params: { mode: "random" } })
+          }
         />
       </FadeInView>
     </View>
