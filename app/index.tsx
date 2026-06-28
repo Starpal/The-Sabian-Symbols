@@ -52,8 +52,7 @@ export default function HomeScreen() {
           title="Search a Degree"
           icon="search-outline"
           onPress={
-            () => router.push("/")
-            // search
+            () => router.push("/search")
           }
         />
         <HomeButton

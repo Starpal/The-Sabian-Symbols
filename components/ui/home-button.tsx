@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_400Regular_Italic",
     fontSize: 29,
     letterSpacing: 2,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.8)",
   },
 
   textPrimary: {
