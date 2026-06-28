@@ -1,24 +1,56 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import {
+  CormorantGaramond_300Light,
+  CormorantGaramond_300Light_Italic,
+  CormorantGaramond_400Regular,
+  CormorantGaramond_400Regular_Italic,
+  CormorantGaramond_500Medium,
+  CormorantGaramond_500Medium_Italic,
+  CormorantGaramond_600SemiBold,
+} from '@expo-google-fonts/cormorant-garamond';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import {
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+
+import { useFonts as useCormorant } from '@expo-google-fonts/cormorant-garamond';
+import { useFonts as useInter } from '@expo-google-fonts/inter';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [cormorantLoaded] = useCormorant({
+    CormorantGaramond_300Light,
+    CormorantGaramond_300Light_Italic,
+    CormorantGaramond_400Regular,
+    CormorantGaramond_400Regular_Italic,
+    CormorantGaramond_500Medium,
+    CormorantGaramond_500Medium_Italic,
+    CormorantGaramond_600SemiBold,
+  });
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+  const [interLoaded] = useInter({
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  const loaded = cormorantLoaded && interLoaded;
+
+  useEffect(() => {
+    if (loaded) SplashScreen.hideAsync();
+  }, [loaded]);
+
+  if (!loaded) return null;
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
