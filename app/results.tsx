@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -9,66 +9,77 @@ import {
   TouchableOpacity,
   View,
   Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import DegreeCard from '@/components/DegreeCard';
-import { SIGNS } from '@/constants/appConstants';
-import { fetchDegreeBySignAndDegree, fetchRandomDegree } from '@/services/api';
-import { Degree } from '@/types/api';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import DegreeCard from "@/components/DegreeCard";
+import { SIGNS } from "@/constants/appConstants";
+import { fetchDegreeBySignAndDegree, fetchRandomDegree } from "@/services/api";
+import { Degree } from "@/types/api";
 
-type Mode = 'search' | 'random';
+type Mode = "search" | "random";
 
-const getNextSign = (current: string, direction: 'plus' | 'minus'): string => {
-  const signs = SIGNS.filter((s) => s !== 'Sign');
+const getNextSign = (current: string, direction: "plus" | "minus"): string => {
+  const signs = SIGNS.filter((s) => s !== "Sign");
   const idx = signs.indexOf(current);
-  if (direction === 'plus') return idx === signs.length - 1 ? signs[0] : signs[idx + 1];
+  if (direction === "plus")
+    return idx === signs.length - 1 ? signs[0] : signs[idx + 1];
   return idx === 0 ? signs[signs.length - 1] : signs[idx - 1];
 };
 
 export default function ResultsScreen() {
-  const { sign: initialSign, degree: initialDegree, mode } = useLocalSearchParams<{
+  const {
+    sign: initialSign,
+    degree: initialDegree,
+    mode,
+  } = useLocalSearchParams<{
     sign: string;
     degree: string;
     mode: Mode;
   }>();
 
   const [degree, setDegree] = useState<Degree | null>(null);
-  const [currentSign, setCurrentSign] = useState(initialSign ?? '');
-  const [currentDegree, setCurrentDegree] = useState(Number(initialDegree) || 1);
+  const [currentSign, setCurrentSign] = useState(initialSign ?? "");
+  const [currentDegree, setCurrentDegree] = useState(
+    Number(initialDegree) || 1,
+  );
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchDegree = useCallback(async (sign: string, deg: number) => {
-    setIsLoading(true);
-    try {
-      const data = mode === 'random' && !sign
-        ? await fetchRandomDegree()
-        : await fetchDegreeBySignAndDegree(sign, deg);
+  const fetchDegree = useCallback(
+    async (sign: string, deg: number) => {
+      setIsLoading(true);
+      try {
+        const data =
+          mode === "random" && !sign
+            ? await fetchRandomDegree()
+            : await fetchDegreeBySignAndDegree(sign, deg);
 
-      const result = Array.isArray(data) ? data[0] : data;
-      setDegree(result);
-      setCurrentSign(result.sign);
-      setCurrentDegree(result.degree);
-    } catch (e) {
-      console.error('[ResultsScreen]', e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [mode]);
+        const result = Array.isArray(data) ? data[0] : data;
+        setDegree(result);
+        setCurrentSign(result.sign);
+        setCurrentDegree(result.degree);
+      } catch (e) {
+        console.error("[ResultsScreen]", e);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [mode],
+  );
 
   useEffect(() => {
     fetchDegree(currentSign, currentDegree);
   }, []);
 
-  const navigate = (direction: 'plus' | 'minus') => {
-    let newDeg = direction === 'plus' ? currentDegree + 1 : currentDegree - 1;
+  const navigate = (direction: "plus" | "minus") => {
+    let newDeg = direction === "plus" ? currentDegree + 1 : currentDegree - 1;
     let newSign = currentSign;
 
     if (newDeg > 30) {
       newDeg = 1;
-      newSign = getNextSign(currentSign, 'plus');
+      newSign = getNextSign(currentSign, "plus");
     } else if (newDeg < 1) {
       newDeg = 30;
-      newSign = getNextSign(currentSign, 'minus');
+      newSign = getNextSign(currentSign, "minus");
     }
 
     setCurrentSign(newSign);
@@ -85,18 +96,28 @@ export default function ResultsScreen() {
         </TouchableOpacity>
         <View style={styles.navButtons}>
           <TouchableOpacity
-            onPress={() => navigate('minus')}
+            onPress={() => navigate("minus")}
             style={styles.navBtn}
             disabled={isLoading}
-            hitSlop={12}>
-            <Ionicons name="chevron-back" size={18} color="rgba(255,255,255,0.4)" />
+            hitSlop={12}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={18}
+              color="rgba(255,255,255,0.4)"
+            />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigate('plus')}
+            onPress={() => navigate("plus")}
             style={styles.navBtn}
             disabled={isLoading}
-            hitSlop={12}>
-            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
+            hitSlop={12}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color="rgba(255,255,255,0.4)"
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -108,7 +129,8 @@ export default function ResultsScreen() {
       ) : degree ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
+          contentContainerStyle={styles.scrollContent}
+        >
           <DegreeCard
             sign={degree.sign}
             degree={degree.degree}
@@ -118,7 +140,8 @@ export default function ResultsScreen() {
           />
           <TouchableOpacity
             style={styles.homeLink}
-            onPress={() => router.back()}>
+            onPress={() => router.back()}
+          >
             <Text style={styles.homeLinkText}>Return</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -134,18 +157,18 @@ export default function ResultsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0c0c1a',
+    backgroundColor: "#0c0c1a",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'android' ? 8 : 0,
+    paddingTop: Platform.OS === "android" ? 8 : 0,
     paddingBottom: 16,
   },
   navButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 4,
   },
   navBtn: {
@@ -153,27 +176,34 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   scrollContent: {
     paddingBottom: 48,
   },
-  homeLink: {
-    marginTop: 32,
-    alignItems: 'center',
-  },
+homeLink: {
+  width: "80%",
+  paddingVertical: 15,
+  borderWidth: StyleSheet.hairlineWidth,
+  borderColor: "rgba(180,160,220,0.35)",
+  borderRadius: 2,
+  alignItems: "center",
+  alignSelf: "center",
+  marginTop: 50,
+  marginBottom: 24,
+},
   homeLinkText: {
-    fontFamily: 'CormorantGaramond_400Regular',
-    fontSize: 12,
+    textTransform: "uppercase",
+    fontFamily: "CormorantGaramond_400Regular",
+    fontSize: 25,
     letterSpacing: 3,
-    color: 'rgba(255,255,255,0.15)',
-    textTransform: 'uppercase',
+    color: "rgba(200,185,240,0.85)",
   },
   errorText: {
-    fontFamily: 'Inter_300Light',
+    fontFamily: "Inter_300Light",
     fontSize: 12,
-    color: 'rgba(255,255,255,0.3)',
+    color: "rgba(255,255,255,0.3)",
     letterSpacing: 2,
   },
 });

@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import PlanetRow from "@/components/PlanetRow";
 import { MONTHS } from "@/constants/appConstants";
 import { fetchCoordinates } from "@/services/api";
-import { Origin, Horoscope } from 'circular-natal-horoscope-js';
+import { Origin, Horoscope } from "circular-natal-horoscope-js";
 import { LocationItem, PlanetDegree } from "@/types/api";
 
 interface FormState {
@@ -90,9 +90,9 @@ export default function NatalScreen() {
     if (!canSubmit || !selectedLocation) return;
     setIsLoading(true);
     try {
-      const monthIndex = MONTHS.indexOf(form.month || 'January'); // 0-based for Origin
-      const hour = parseInt(form.hour || '12');
-      const minute = parseInt(form.minutes || '0');
+      const monthIndex = MONTHS.indexOf(form.month || "January"); // 0-based for Origin
+      const hour = parseInt(form.hour || "12");
+      const minute = parseInt(form.minutes || "0");
 
       const origin = new Origin({
         year: parseInt(form.year),
@@ -104,7 +104,7 @@ export default function NatalScreen() {
         longitude: parseFloat(selectedLocation.lon),
       });
 
-      const horoscope = new Horoscope({ origin, language: 'en' });
+      const horoscope = new Horoscope({ origin, language: "en" });
 
       const celestialBodies = horoscope.CelestialBodies.all;
       const celestialPoints = horoscope.CelestialPoints.all;
@@ -114,18 +114,18 @@ export default function NatalScreen() {
       celestialBodies.push(horoscope.Midheaven);
 
       const planets: PlanetDegree[] = celestialBodies
-        .filter((el: any) => el.key !== 'sirius' && el.key !== 'southnode')
+        .filter((el: any) => el.key !== "sirius" && el.key !== "southnode")
         .map((el: any) => ({
           key: el.key,
           label: el.label,
-          sign: el.Sign?.label ?? '',
-          signKey: el.Sign?.key ?? '',
-          degrees: el.ChartPosition?.Ecliptic?.ArcDegreesFormatted30 ?? '',
+          sign: el.Sign?.label ?? "",
+          signKey: el.Sign?.key ?? "",
+          degrees: el.ChartPosition?.Ecliptic?.ArcDegreesFormatted30 ?? "",
         }));
 
       setPlanetDegrees(planets);
     } catch (e) {
-      console.error('[handleSubmit]', e);
+      console.error("[handleSubmit]", e);
     } finally {
       setIsLoading(false);
     }
@@ -161,113 +161,122 @@ export default function NatalScreen() {
             style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
-            <Text style={styles.screenTitle}>Natal chart</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.screenTitle}>Natal chart</Text>
 
-            {/* Date row */}
-            <Text style={styles.fieldLabel}>Date of birth</Text>
-            <View style={styles.dateRow}>
-              <TextInput
-                style={[styles.input, styles.inputSmall]}
-                placeholder="Day"
-                placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                keyboardType="numeric"
-                maxLength={2}
-                value={form.day}
-                onChangeText={(v) => updateForm("day", v)}
-              />
-              <TouchableOpacity
-                style={[styles.input, styles.inputMonth]}
-                onPress={() => bottomSheetRef.current?.expand()}
-              >
-                <Text
-                  style={
-                    form.month ? styles.inputText : styles.inputPlaceholder
-                  }
+              {/* Date row */}
+              <Text style={styles.fieldLabel}>Date of birth</Text>
+              <View style={styles.dateRow}>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Day"
+                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.day}
+                  onChangeText={(v) => updateForm("day", v)}
+                />
+                <TouchableOpacity
+                  style={[styles.input, styles.inputMonth]}
+                  onPress={() => bottomSheetRef.current?.expand()}
                 >
-                  {form.month || "Month"}
-                </Text>
-              </TouchableOpacity>
-              <TextInput
-                style={[styles.input, styles.inputSmall]}
-                placeholder="Year"
-                placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                keyboardType="numeric"
-                maxLength={4}
-                value={form.year}
-                onChangeText={(v) => updateForm("year", v)}
-              />
-            </View>
+                  <Text
+                    style={
+                      form.month ? styles.inputText : styles.inputPlaceholder
+                    }
+                  >
+                    {form.month || "Month"}
+                  </Text>
+                </TouchableOpacity>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Year"
+                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                  keyboardType="numeric"
+                  maxLength={4}
+                  value={form.year}
+                  onChangeText={(v) => updateForm("year", v)}
+                />
+              </View>
 
-            {/* Time row */}
-            <Text style={styles.fieldLabel}>
-              Time of birth <Text style={styles.optional}>(optional)</Text>
-            </Text>
-            <View style={styles.dateRow}>
-              <TextInput
-                style={[styles.input, styles.inputSmall]}
-                placeholder="Hour"
-                placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                keyboardType="numeric"
-                maxLength={2}
-                value={form.hour}
-                onChangeText={(v) => updateForm("hour", v)}
-              />
-              <Text style={styles.colon}>:</Text>
-              <TextInput
-                style={[styles.input, styles.inputSmall]}
-                placeholder="Min"
-                placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                keyboardType="numeric"
-                maxLength={2}
-                value={form.minutes}
-                onChangeText={(v) => updateForm("minutes", v)}
-              />
-            </View>
-
-            {/* Location */}
-            <Text style={styles.fieldLabel}>Place of birth</Text>
-            <View style={styles.locationRow}>
-              <TextInput
-                style={[styles.input, { flex: 1 }]}
-                placeholder="City, country"
-                placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                value={form.location}
-                onChangeText={(v) => updateForm("location", v)}
-                onSubmitEditing={handleLocationSearch}
-                returnKeyType="search"
-              />
-              <TouchableOpacity
-                style={styles.searchIconBtn}
-                onPress={handleLocationSearch}
-              >
-                {isLoadingLocations ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="rgba(200,185,240,0.6)"
-                  />
-                ) : (
-                  <Ionicons
-                    name="search-outline"
-                    size={16}
-                    color="rgba(200,185,240,0.6)"
-                  />
-                )}
-              </TouchableOpacity>
-            </View>
-            {selectedLocation && (
-              <Text style={styles.selectedLocation} numberOfLines={1}>
-                ✓ {selectedLocation.name}
+              {/* Time row */}
+              <Text style={styles.fieldLabel}>
+                Time of birth <Text style={styles.optional}>(optional)</Text>
               </Text>
-            )}
-            {locationResults.length > 0 && (
-              <TouchableOpacity onPress={handleShowLocationResults}>
-                <Text style={styles.showResults}>
-                  {locationResults.length} result
-                  {locationResults.length > 1 ? "s" : ""} — tap to select
-                </Text>
-              </TouchableOpacity>
-            )}
+              <View style={styles.dateRow}>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Hour"
+                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.hour}
+                  onChangeText={(v) => updateForm("hour", v)}
+                />
+                <Text style={styles.colon}>:</Text>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Min"
+                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.minutes}
+                  onChangeText={(v) => updateForm("minutes", v)}
+                />
+              </View>
 
+              {/* Location */}
+              <Text style={styles.fieldLabel}>Place of birth</Text>
+              <View style={styles.locationRow}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  placeholder="City, country"
+                  placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                  value={form.location}
+                  onChangeText={(v) => updateForm("location", v)}
+                  onSubmitEditing={handleLocationSearch}
+                  returnKeyType="search"
+                />
+                <TouchableOpacity
+                  style={styles.searchIconBtn}
+                  onPress={handleLocationSearch}
+                >
+                  {isLoadingLocations ? (
+                    <ActivityIndicator
+                      size="small"
+                      color="rgba(200,185,240,0.6)"
+                    />
+                  ) : (
+                    <Ionicons
+                      name="search-outline"
+                      size={16}
+                      color="rgba(200,185,240,0.6)"
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+              {selectedLocation && (
+                <Text style={styles.selectedLocation} numberOfLines={1}>
+                  ✓ {selectedLocation.name}
+                </Text>
+              )}
+              {locationResults.length > 0 && (
+                <View style={styles.locationList}>
+                  {locationResults.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.locationItem}
+                      onPress={() => handleSelectLocation(item)}
+                      activeOpacity={0.6}
+                    >
+                      <Text style={styles.locationItemText} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
             {/* Submit */}
             <TouchableOpacity
               style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
@@ -467,23 +476,26 @@ const styles = StyleSheet.create({
     color: "rgba(200,185,240,0.6)",
     marginBottom: 20,
   },
-  showResults: {
-    fontFamily: "Inter_300Light",
-    fontSize: 10,
-    letterSpacing: 1,
-    color: "rgba(200,185,240,0.5)",
-    marginBottom: 20,
-    textDecorationLine: "underline",
+  locationList: {
+    marginBottom: 16,
+  },
+  locationItem: {
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(255,255,255,0.06)",
+  },
+  locationItemText: {
+    fontFamily: "CormorantGaramond_400Regular",
+    fontSize: 16,
+    color: "rgba(255,255,255,0.5)",
   },
   submitBtn: {
-    marginTop: "auto",
     width: "100%",
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(180,160,220,0.35)",
     borderRadius: 2,
     alignItems: "center",
-    marginBottom: 24,
   },
   submitBtnDisabled: {
     borderColor: "rgba(255,255,255,0.08)",
