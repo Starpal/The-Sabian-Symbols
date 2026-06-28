@@ -1,4 +1,4 @@
-import { Degree, BackgroundImage } from '../types/api';
+import { Degree, LocationItem, LocationResult, PlanetDegree } from '../types/api';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -43,15 +43,25 @@ export const fetchDegreeBySignAndDegree = async (
   }
 };
 
-export const fetchRandomBackgroundImage = async (): Promise<[string, string]> => {
+const geocodingHeaders: HeadersInit = {
+  'Accept': '*/*',
+  'cache-control': 'no-cache',
+};
+
+export const fetchCoordinates = async (query: string): Promise<LocationItem[]> => {
   try {
-    const res = await fetch(`${API_URL}/uploads`, {
-      method: 'GET',
-      headers: defaultHeaders,
-    });
-    const data: BackgroundImage = await res.json();
-    return [data.contentType, data.imageBase64];
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json`,
+      { method: 'GET', headers: geocodingHeaders }
+    );
+    const data: LocationResult[] = await res.json();
+    return data.map((item) => ({
+      name: item.display_name,
+      id: item.place_id,
+      lat: item.lat,
+      lon: item.lon,
+    }));
   } catch (error) {
-    return handleApiError(error, 'fetchRandomBackgroundImage');
+    return handleApiError(error, 'fetchCoordinates');
   }
 };

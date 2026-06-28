@@ -59,8 +59,7 @@ export default function HomeScreen() {
           title="Natal Chart"
           icon="planet-outline"
           onPress={
-            () => router.push("/")
-            //natal chart
+            () => router.push("/natal")
           }
         />
         <HomeButton

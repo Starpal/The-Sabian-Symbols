@@ -19,6 +19,21 @@ export const SIGNS: string[] = [
   'Pisces',
 ];
 
+export const MONTHS = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"
+];
+
 // Animation for loading text and submit button
 export interface PulseAnimation {
   0: { scale: number };
