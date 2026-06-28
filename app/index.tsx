@@ -66,10 +66,7 @@ export default function HomeScreen() {
           title="Ask the Oracle"
           icon="sparkles-outline"
           variant="primary"
-          onPress={
-            () => router.push("/")
-            //random
-          }
+          onPress={() => router.push({ pathname: '/results', params: { mode: 'random' } })}
         />
       </FadeInView>
     </View>
