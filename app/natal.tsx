@@ -148,6 +148,8 @@ export default function NatalScreen() {
     setSelectedLocation(null);
   };
 
+  const locationResultName = locationResults.map((i) => i.name);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -358,11 +360,7 @@ export default function NatalScreen() {
           handleIndicatorStyle={styles.sheetHandle}
         >
           <BottomSheetFlatList
-            data={
-              sheetMode === "location"
-                ? locationResults.map((i) => i.name)
-                : MONTHS
-            }
+            data={sheetMode === "location" ? locationResultName : MONTHS}
             keyExtractor={(item) => item}
             contentContainerStyle={styles.sheetList}
             renderItem={({ item }) => {
