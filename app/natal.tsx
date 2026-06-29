@@ -1,7 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -34,6 +40,8 @@ interface FormState {
   location: string;
 }
 
+type SheetMode = "month" | "location";
+
 const INITIAL_FORM: FormState = {
   day: "",
   month: "",
@@ -56,6 +64,8 @@ export default function NatalScreen() {
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
 
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const [sheetMode, setSheetMode] = useState<"month" | "location">("month");
   const snapPoints = useMemo(() => ["45%"], []);
 
   const updateForm = (field: keyof FormState, value: string) => {
@@ -81,6 +91,7 @@ export default function NatalScreen() {
     setSelectedLocation(item);
     setForm((prev) => ({ ...prev, location: item.name }));
     setLocationResults([]);
+    setSheetMode("month");
     bottomSheetRef.current?.close();
   }, []);
 
@@ -242,12 +253,19 @@ export default function NatalScreen() {
                     placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     value={form.location}
                     onChangeText={(v) => updateForm("location", v)}
-                    onSubmitEditing={handleLocationSearch}
+                    onSubmitEditing={() => {
+                      Keyboard.dismiss();
+                      handleLocationSearch();
+                    }}
                     returnKeyType="search"
                   />
                   <TouchableOpacity
                     style={styles.searchIconBtn}
-                    onPress={handleLocationSearch}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setSheetMode("location");
+                      handleLocationSearch();
+                    }}
                   >
                     {isLoadingLocations ? (
                       <ActivityIndicator
@@ -341,7 +359,7 @@ export default function NatalScreen() {
         >
           <BottomSheetFlatList
             data={
-              locationResults.length > 0
+              sheetMode === "location"
                 ? locationResults.map((i) => i.name)
                 : MONTHS
             }
@@ -359,6 +377,7 @@ export default function NatalScreen() {
                   onPress={() => {
                     if (isMonth) {
                       updateForm("month", item);
+                      setSheetMode("month");
                       bottomSheetRef.current?.close();
                     } else {
                       const loc = locationResults.find((l) => l.name === item);
@@ -434,7 +453,7 @@ const styles = StyleSheet.create({
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
     marginBottom: 60,
   },
   locationRow: {
@@ -447,18 +466,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: "rgba(255,255,255,0.3)",
     fontFamily: "CormorantGaramond_400Regular",
     fontSize: 20,
     color: "rgba(255,255,255,0.85)",
+    height: 48,
   },
   inputSmall: {
-    width: 64,
+    flex: 1,
+    minWidth: 70,
     textAlign: "center",
+    paddingVertical: 10,
   },
   inputMonth: {
     flex: 1,
     justifyContent: "center",
+    minWidth: 120,
   },
   inputText: {
     fontFamily: "CormorantGaramond_400Regular",
