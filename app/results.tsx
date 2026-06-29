@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -19,68 +19,79 @@ import { colors } from "@/constants/theme";
 type Mode = "search" | "random";
 
 const getNextSign = (current: string, direction: "plus" | "minus"): string => {
-  const signs = SIGNS.filter((s) => s !== "Sign");
-  const idx = signs.indexOf(current);
-  if (direction === "plus") return idx === signs.length - 1 ? signs[0] : signs[idx + 1];
-  return idx === 0 ? signs[signs.length - 1] : signs[idx - 1];
+  const idx = SIGNS.indexOf(current);
+  if (direction === "plus")
+    return idx === SIGNS.length - 1 ? SIGNS[0] : SIGNS[idx + 1];
+  return idx === 0 ? SIGNS[SIGNS.length - 1] : SIGNS[idx - 1];
 };
 
 export default function ResultsScreen() {
-  const { sign: initialSign, degree: initialDegree, mode } = useLocalSearchParams<{
-    sign: string;
-    degree: string;
-    mode: Mode;
-  }>();
+  const { sign: initialSign, degree: initialDegree, mode } =
+    useLocalSearchParams<{ sign: string; degree: string; mode: Mode }>();
 
-  const [currentSign, setCurrentSign] = useState(initialSign ?? "");
-  const [currentDegree, setCurrentDegree] = useState(Number(initialDegree) || 1);
-
-  const isRandom = mode === "random" && !initialSign;
+  // after random resolves, we switch to search mode with real sign/degree
+  const [searchSign, setSearchSign] = useState(initialSign ?? "");
+  const [searchDegree, setSearchDegree] = useState(Number(initialDegree) || 0);
+  const [useSearch, setUseSearch] = useState(mode !== "random" || !!initialSign);
 
   const randomQuery = useRandomDegree();
-  const searchQuery = useSearchDegree(currentSign, currentDegree);
+  const searchQuery = useSearchDegree(searchSign, searchDegree);
 
-  const { data: degree, isLoading, isError } = isRandom ? randomQuery : searchQuery;
+  const { data: degree, isLoading, isError } = useSearch ? searchQuery : randomQuery;
+
+  // once random resolves, switch to search mode so arrows work correctly
+  useEffect(() => {
+    if (!useSearch && degree) {
+      setSearchSign(degree.sign);
+      setSearchDegree(degree.degree);
+      setUseSearch(true);
+    }
+  }, [degree, useSearch]);
 
   const navigate = (direction: "plus" | "minus") => {
-    const sign = degree?.sign ?? currentSign;
-    const deg = degree?.degree ?? currentDegree;
-
-    let newDeg = direction === "plus" ? deg + 1 : deg - 1;
-    let newSign = sign;
+    let newDeg = direction === "plus" ? searchDegree + 1 : searchDegree - 1;
+    let newSign = searchSign;
 
     if (newDeg > 30) {
       newDeg = 1;
-      newSign = getNextSign(sign, "plus");
+      newSign = getNextSign(searchSign, "plus");
     } else if (newDeg < 1) {
       newDeg = 30;
-      newSign = getNextSign(sign, "minus");
+      newSign = getNextSign(searchSign, "minus");
     }
 
-    setCurrentSign(newSign);
-    setCurrentDegree(newDeg);
+    setSearchSign(newSign);
+    setSearchDegree(newDeg);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.4)" />
+          <Ionicons name="arrow-back" size={20} color={colors.accent} />
         </TouchableOpacity>
         <View style={styles.navButtons}>
           <TouchableOpacity
             onPress={() => navigate("minus")}
             style={styles.navBtn}
-            disabled={isLoading}
+            disabled={isLoading || !useSearch}
             hitSlop={12}>
-            <Ionicons name="chevron-back" size={18} color="rgba(255,255,255,0.4)" />
+            <Ionicons
+              name="chevron-back"
+              size={18}
+              color={isLoading || !useSearch ? colors.divider : colors.textSecondary}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigate("plus")}
             style={styles.navBtn}
-            disabled={isLoading}
+            disabled={isLoading || !useSearch}
             hitSlop={12}>
-            <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.4)" />
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={isLoading || !useSearch ? colors.divider : colors.textSecondary}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -162,7 +173,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: "Inter_300Light",
     fontSize: 12,
-    color: "rgba(255,255,255,0.3)",
+    color: colors.textMuted,
     letterSpacing: 2,
   },
 });

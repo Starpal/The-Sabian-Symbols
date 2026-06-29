@@ -65,8 +65,6 @@ export default function SearchScreen() {
     });
   };
 
-  const signsData = SIGNS.filter((s) => s !== "Sign");
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -153,7 +151,7 @@ export default function SearchScreen() {
           handleIndicatorStyle={styles.sheetHandle}
         >
           <BottomSheetFlatList
-            data={activePicker === "sign" ? signsData : DEGREES}
+            data={activePicker === "sign" ? SIGNS : DEGREES}
             keyExtractor={(item) => item.toString()}
             contentContainerStyle={styles.sheetList}
             renderItem={({ item }) => {
