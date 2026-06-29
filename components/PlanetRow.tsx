@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PlanetDegree } from '@/types/api';
+import { colors } from '@/constants/theme';
 
 type Props = Pick<PlanetDegree, 'label' | 'sign' | 'signKey' | 'degrees'>;
 
@@ -29,11 +30,11 @@ export default function PlanetRow({ label, sign, signKey, degrees }: Props) {
         <MaterialCommunityIcons
           name={`zodiac-${signKey}` as any}
           size={18}
-          color="rgba(200,185,240,0.6)"
+          color={colors.accentMuted}
         />
         <Text style={styles.degrees}>{degrees}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.2)" />
+      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled}/>
     </TouchableOpacity>
   );
 }
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255,255,255,0.06)',
+    borderBottomColor: colors.divider,
   },
   planet: {
     fontFamily: 'CormorantGaramond_400Regular',

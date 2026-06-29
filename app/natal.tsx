@@ -30,6 +30,9 @@ import { MONTHS } from "@/constants/appConstants";
 import { fetchCoordinates } from "@/services/api";
 import { Origin, Horoscope } from "circular-natal-horoscope-js";
 import { LocationItem, PlanetDegree } from "@/types/api";
+import ScreenHeader from "@/components/ui/screen-header";
+import PrimaryButton from "@/components/ui/primary-button";
+import { colors } from "@/constants/theme";
 
 interface FormState {
   day: string;
@@ -151,21 +154,11 @@ export default function NatalScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-            <Ionicons
-              name="arrow-back"
-              size={20}
-              color="rgba(200,185,240,0.97)"
-            />
-          </TouchableOpacity>
-          {planetDegrees && (
-            <TouchableOpacity onPress={handleReset} hitSlop={12}>
-              <Text style={styles.resetText}>New chart</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+   <ScreenHeader right={planetDegrees && (
+  <TouchableOpacity onPress={handleReset}>
+    <Text style={styles.resetText}>New chart</Text>
+  </TouchableOpacity>
+)} />
 
         {!planetDegrees ? (
           <KeyboardAvoidingView
@@ -270,13 +263,13 @@ export default function NatalScreen() {
                     {isLoadingLocations ? (
                       <ActivityIndicator
                         size="small"
-                        color="rgba(200,185,240,0.6)"
+                        color={colors.accentMuted}
                       />
                     ) : (
                       <Ionicons
                         name="search-outline"
                         size={16}
-                        color="rgba(200,185,240,0.6)"
+                        color={colors.accentMuted}
                       />
                     )}
                   </TouchableOpacity>
@@ -305,25 +298,12 @@ export default function NatalScreen() {
               </View>
             </ScrollView>
             {/* Submit */}
-            <TouchableOpacity
-              style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-              onPress={handleSubmit}
-              disabled={!canSubmit || isLoading}
-              activeOpacity={0.7}
-            >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="rgba(200,185,240,0.8)" />
-              ) : (
-                <Text
-                  style={[
-                    styles.submitText,
-                    !canSubmit && styles.submitTextDisabled,
-                  ]}
-                >
-                  Calculate
-                </Text>
-              )}
-            </TouchableOpacity>
+          <PrimaryButton
+  label="Calculate"
+  isLoading={isLoading}
+  disabled={!canSubmit}
+  onPress={handleSubmit}
+/>
           </KeyboardAvoidingView>
         ) : (
           <>
@@ -410,7 +390,7 @@ export default function NatalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0c0c1a",
+    backgroundColor: colors.bg,
     paddingHorizontal: 24,
   },
   header: {
@@ -424,13 +404,13 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_300Light",
     fontSize: 11,
     letterSpacing: 2,
-    color: "rgba(200,185,240,0.6)",
+    color: colors.accentMuted,
     textTransform: "uppercase",
   },
   screenTitle: {
     fontFamily: "CormorantGaramond_300Light_Italic",
     fontSize: 44,
-    color: "rgba(255,255,255,0.9)",
+    color: colors.textPrimary,
     marginTop: 20,
     marginBottom: 60,
     textAlign: "center",
@@ -497,13 +477,13 @@ const styles = StyleSheet.create({
   searchIconBtn: {
     padding: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: colors.dividerLight,
   },
   selectedLocation: {
     fontFamily: "Inter_300Light",
     fontSize: 10,
     letterSpacing: 1,
-    color: "rgba(200,185,240,0.6)",
+    color: colors.accentMuted,
     marginBottom: 20,
   },
   locationList: {
@@ -512,7 +492,7 @@ const styles = StyleSheet.create({
   locationItem: {
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.06)",
+    borderBottomColor: colors.divider,
   },
   locationItemText: {
     fontFamily: "CormorantGaramond_400Regular",
@@ -523,26 +503,26 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(180,160,220,0.35)",
+    borderColor: colors.accentBorder,
     borderRadius: 2,
     alignItems: "center",
   },
   submitBtnDisabled: {
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: colors.borderColor,
   },
   submitText: {
     fontFamily: "CormorantGaramond_400Regular",
     fontSize: 25,
     letterSpacing: 3,
-    color: "rgba(200,185,240,0.85)",
+    color: colors.accent,
   },
   submitTextDisabled: {
-    color: "rgba(255,255,255,0.2)",
+    color: colors.textDisabled,
   },
   sheetBg: {
-    backgroundColor: "#13132a",
+    backgroundColor: colors.bgSheet,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.08)",
+    borderTopColor: colors.borderColor,
   },
   sheetHandle: {
     backgroundColor: "rgba(255,255,255,0.15)",

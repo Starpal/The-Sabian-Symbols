@@ -13,6 +13,8 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SIGNS } from "@/constants/appConstants";
+import ScreenHeader from "@/components/ui/screen-header";
+import { colors } from "@/constants/theme";
 
 type PickerType = "sign" | "degree" | null;
 
@@ -70,16 +72,7 @@ export default function SearchScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" />
 
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-            <Ionicons
-              name="arrow-back"
-              size={20}
-              color="rgba(200,185,240,0.97)"
-            />
-          </TouchableOpacity>
-        </View>
+<ScreenHeader />
 
         <View style={styles.content}>
           <Text style={styles.screenTitle}>Search a Degree</Text>
@@ -102,7 +95,7 @@ export default function SearchScreen() {
             <Ionicons
               name="chevron-down"
               size={12}
-              color="rgba(255,255,255,0.2)"
+              color={colors.textDisabled}
             />
           </TouchableOpacity>
 
@@ -130,7 +123,7 @@ export default function SearchScreen() {
             <Ionicons
               name="chevron-down"
               size={12}
-              color="rgba(255,255,255,0.2)"
+              color={colors.textDisabled}
             />
           </TouchableOpacity>
         </View>
@@ -210,7 +203,7 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0c0c1a",
+    backgroundColor: colors.bg,
     paddingHorizontal: 24,
   },
   header: {
@@ -225,7 +218,7 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_300Light_Italic",
     fontSize: 44,
     textAlign: "center",
-    color: "rgba(255,255,255,0.9)",
+    color: colors.textPrimary,
     marginTop: 24,
     marginBottom: 80,
   },
@@ -243,11 +236,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: colors.dividerLight,
     marginBottom: 70,
   },
   fieldActive: {
-    borderBottomColor: "rgba(180,160,220,0.35)",
+    borderBottomColor: colors.accentBorder,
   },
   fieldValue: {
     fontFamily: "CormorantGaramond_400Regular",
@@ -262,29 +255,29 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(180,160,220,0.35)",
+    borderColor: colors.accentBorder,
     borderRadius: 2,
     alignItems: "center",
     marginBottom: 24,
   },
   submitBtnDisabled: {
-    borderColor: "rgba(180,160,220,0.4)",
+    borderColor: colors.textDisabled,
   },
   submitText: {
     fontFamily: "CormorantGaramond_400Regular",
     fontSize: 25,
     letterSpacing: 3,
-    color: "rgba(200,185,240,0.85)",
+    color: colors.accent,
   },
   submitTextDisabled: {
-    color: "rgba(255,255,255,0.2)",
+    color: colors.textDisabled,
   },
 
   // Bottom Sheet
   sheetBg: {
-    backgroundColor: "#13132a",
+    backgroundColor: colors.bgSheet,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.08)",
+    borderTopColor: colors.borderColor,
   },
   sheetHandle: {
     backgroundColor: "rgba(255,255,255,0.15)",

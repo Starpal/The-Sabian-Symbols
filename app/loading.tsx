@@ -1,3 +1,4 @@
+import { colors, fonts } from '@/constants/theme';
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
@@ -33,13 +34,13 @@ export default function LoadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0c0c1a',
+    backgroundColor: colors.bg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   text: {
     fontFamily: 'CormorantGaramond_300Light',
     fontSize: 48,
-    color: 'rgba(200,185,240,0.6)',
+    color: colors.accentMuted,
   },
 });

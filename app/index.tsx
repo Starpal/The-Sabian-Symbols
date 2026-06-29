@@ -3,6 +3,7 @@ import { Animated, StyleSheet, Text, View } from "react-native";
 import Star from "@/components/star";
 import HomeButton from "@/components/ui/home-button";
 import { router } from "expo-router";
+import { colors } from "@/constants/theme";
 
 const STARS = Array.from({ length: 80 }).map(() => ({
   top: `${Math.random() * 100}%`,
@@ -74,7 +75,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0c0c1a",
+    backgroundColor: colors.bg,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 28,

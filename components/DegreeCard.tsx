@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Degree } from "@/types/api";
+import { colors } from "@/constants/theme";
 
 type Props = Pick<
   Degree,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   divider: {
     width: "100%",
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: colors.divider,
     marginBottom: 40,
   },
   title: {
@@ -87,13 +88,13 @@ const styles = StyleSheet.create({
   descriptionBox: {
     paddingVertical: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderColor: colors.divider,
     borderRadius: 2,
   },
   description: {
     fontFamily: "CormorantGaramond_300Light",
     fontSize: 25,
-    color: "rgba(255,255,255,0.55)",
+    color: colors.textSecondary,
     lineHeight: 29,
     textAlign: "justify",
   },

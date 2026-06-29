@@ -1,6 +1,7 @@
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import {
   CormorantGaramond_300Light,
@@ -10,7 +11,7 @@ import {
   CormorantGaramond_500Medium,
   CormorantGaramond_500Medium_Italic,
   CormorantGaramond_600SemiBold,
-} from '@expo-google-fonts/cormorant-garamond';
+} from "@expo-google-fonts/cormorant-garamond";
 
 import {
   Inter_300Light,
@@ -18,12 +19,21 @@ import {
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
-} from '@expo-google-fonts/inter';
+} from "@expo-google-fonts/inter";
 
-import { useFonts as useCormorant } from '@expo-google-fonts/cormorant-garamond';
-import { useFonts as useInter } from '@expo-google-fonts/inter';
+import { useFonts as useCormorant } from "@expo-google-fonts/cormorant-garamond";
+import { useFonts as useInter } from "@expo-google-fonts/inter";
 
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
 export default function RootLayout() {
   const [cormorantLoaded] = useCormorant({
@@ -52,5 +62,9 @@ export default function RootLayout() {
 
   if (!loaded) return null;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </QueryClientProvider>
+  );
 }
