@@ -40,8 +40,6 @@ interface FormState {
   location: string;
 }
 
-type SheetMode = "month" | "location";
-
 const INITIAL_FORM: FormState = {
   day: "",
   month: "",
