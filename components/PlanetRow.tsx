@@ -38,10 +38,11 @@ export default function PlanetRow({ label, sign, signKey, degrees }: Props) {
           name={`zodiac-${signKey}` as any}
           size={18}
           color={colors.accentMuted}
+          aria-hidden={true}
         />
         <Text style={styles.degrees}>{degrees}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} />
+      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} aria-hidden={true} />
     </TouchableOpacity>
   );
 }

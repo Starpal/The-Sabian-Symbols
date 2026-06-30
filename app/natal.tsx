@@ -300,6 +300,7 @@ export default function NatalScreen() {
                         name="search-outline"
                         size={16}
                         color={colors.accentMuted}
+                        aria-hidden={true} 
                       />
                     )}
                   </TouchableOpacity>
@@ -415,6 +416,7 @@ export default function NatalScreen() {
                       name="checkmark"
                       size={14}
                       color="rgba(200,185,240,0.8)"
+                      aria-hidden={true} 
                     />
                   )}
                 </TouchableOpacity>

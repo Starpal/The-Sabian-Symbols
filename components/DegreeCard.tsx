@@ -23,6 +23,7 @@ export default function DegreeCard({
           name={`zodiac-${sign.toLowerCase()}` as any}
           size={36}
           color="rgba(200,185,240,0.9)"
+          aria-hidden={true} 
         />
         <Text style={styles.signLabel}>
           {sign} · {degree}°

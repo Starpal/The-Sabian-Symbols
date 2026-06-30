@@ -109,6 +109,7 @@ export default function ResultsScreen() {
                   color={
                     isLoading || !seeded ? colors.divider : colors.textSecondary
                   }
+                  aria-hidden={true} 
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -126,6 +127,7 @@ export default function ResultsScreen() {
                   color={
                     isLoading || !seeded ? colors.divider : colors.textSecondary
                   }
+                  aria-hidden={true} 
                 />
               </TouchableOpacity>
             </View>
@@ -141,6 +143,7 @@ export default function ResultsScreen() {
             name="alert-circle-outline"
             size={32}
             color={colors.textMuted}
+            aria-hidden={true} 
           />
           <Text style={styles.errorText}>{getErrorMessage(error)}</Text>
           <PrimaryButton

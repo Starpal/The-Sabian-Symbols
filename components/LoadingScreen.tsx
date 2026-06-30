@@ -63,7 +63,7 @@ export default function LoadingScreen() {
         ))}
       </View>
       <Animated.View style={{ opacity, transform: [{ rotate }] }}>
-        <Ionicons name="planet" size={52} color={colors.textPrimary} />
+        <Ionicons name="planet" size={52} color={colors.textPrimary} aria-hidden={true} />
       </Animated.View>
     </View>
   );

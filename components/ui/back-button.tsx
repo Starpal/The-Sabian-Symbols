@@ -20,7 +20,7 @@ export default function BackButton({ onPress }: BackButtonProps) {
       accessibilityRole="button"
       accessibilityHint={`Navigate back to ${previousScreen} screen`}
     >
-      <Ionicons name="arrow-back" size={20} color={colors.accent} />
+      <Ionicons name="arrow-back" size={20} color={colors.accent} aria-hidden={true} />
     </TouchableOpacity>
   );
 }

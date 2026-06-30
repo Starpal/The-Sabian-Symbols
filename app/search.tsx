@@ -98,6 +98,7 @@ export default function SearchScreen() {
               name="chevron-down"
               size={12}
               color={colors.textDisabled}
+              aria-hidden={true} 
             />
           </TouchableOpacity>
 
@@ -132,6 +133,7 @@ export default function SearchScreen() {
               name="chevron-down"
               size={12}
               color={colors.textDisabled}
+              aria-hidden={true} 
             />
           </TouchableOpacity>
         </View>
@@ -197,6 +199,7 @@ export default function SearchScreen() {
                       name="checkmark"
                       size={14}
                       color="rgba(200,185,240,0.8)"
+                      aria-hidden={true} 
                     />
                   )}
                 </TouchableOpacity>
