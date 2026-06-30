@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SIGNS } from "@/constants/appConstants";
 import ScreenHeader from "@/components/ui/screen-header";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 import PrimaryButton from "@/components/ui/primary-button";
 import { sheetStyles } from "@/constants/sheetStyles";
 
@@ -115,7 +115,6 @@ export default function SearchScreen() {
             ]}
             onPress={() => openPicker("degree")}
             activeOpacity={0.7}
-            disabled={!selectedSign}
             accessibilityLabel={
               selectedDegree !== null ? `${selectedDegree}°` : "Select a degree"
             }
@@ -204,7 +203,7 @@ export default function SearchScreen() {
                     <Ionicons
                       name="checkmark"
                       size={14}
-                      color="rgba(200,185,240,0.8)"
+                      color={colors.accentText}
                       aria-hidden={true}
                       accessibilityElementsHidden
                       importantForAccessibility="no-hide-descendants"
@@ -235,7 +234,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   screenTitle: {
-    fontFamily: "CormorantGaramond_300Light_Italic",
+    fontFamily: fonts.serifLightItalic,
     fontSize: 44,
     textAlign: "center",
     color: colors.textPrimary,
@@ -243,10 +242,10 @@ const styles = StyleSheet.create({
     marginBottom: 80,
   },
   fieldLabel: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 14,
     letterSpacing: 3,
-    color: "rgba(255, 255, 255, 0.76)",
+    color: colors.accentText,
     textTransform: "uppercase",
     marginBottom: 20,
   },
@@ -263,12 +262,12 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.accentBorder,
   },
   fieldValue: {
-    fontFamily: "CormorantGaramond_400Regular",
+    fontFamily: fonts.serif,
     fontSize: 26,
-    color: "rgba(255,255,255,0.85)",
+    color: colors.borderColor,
   },
   fieldPlaceholder: {
-    color: "rgba(255, 255, 255, 0.45)",
-    fontSize: 20,
+    color: colors.placeholder,
+    fontSize: 22,
   },
 });

@@ -28,7 +28,7 @@ import PlanetRow from "@/components/PlanetRow";
 import ScreenHeader from "@/components/ui/screen-header";
 import PrimaryButton from "@/components/ui/primary-button";
 import { MONTHS } from "@/constants/appConstants";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 import { fetchCoordinates, ApiError } from "@/services/api";
 import { computePlanetDegrees } from "@/services/astrology";
 import { LocationItem, PlanetDegree } from "@/types/api";
@@ -82,12 +82,18 @@ export default function NatalScreen() {
 
   const snapPoints = useMemo(() => ["45%"], []);
 
-  // Cancel any in-flight geocoding request on unmount so a slow response
-  // can't try to update state after the screen is gone.
+  // Cancel any in-flight geocoding request on unmount
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const updateForm = (field: keyof FormState, value: string) => {
+    // ✅ Resetta gli errori di validazione quando l'utente modifica il campo
+    if (field === "day" || field === "year" || field === "month") {
+      setDateError(null);
+      setDateErrorField(null);
+    }
+    
     setForm((prev) => ({ ...prev, [field]: value }));
+    
     if (field === "location") {
       setSelectedLocation(null);
       setLocationResults([]);
@@ -99,8 +105,6 @@ export default function NatalScreen() {
     const query = form.location.trim();
     if (!query) return;
 
-    // Cancel any previous request still in flight before starting a new one
-    // — otherwise a slow first response can overwrite a faster later one.
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -130,25 +134,19 @@ export default function NatalScreen() {
 
   const currentYear = new Date().getFullYear();
 
-  const dateValidationError = validateNatalDate(
-    form.day,
-    form.month,
-    form.year,
-    currentYear,
+  // ✅ Calcola canSubmit - SENZA validazione
+  const canSubmit = Boolean(
+    form.day && 
+    form.year && 
+    selectedLocation &&
+    !isLoading
   );
-  if (dateValidationError) {
-    setDateError(dateValidationError.message);
-    setDateErrorField(dateValidationError.field);
-    return;
-  }
-  setDateError(null);
-  setDateErrorField(null);
 
-  const canSubmit = Boolean(form.day && form.year && selectedLocation);
-
-  const handleSubmit = () => {
-    if (!canSubmit || !selectedLocation) return;
-    Keyboard.dismiss();
+  // ✅ Funzione di validazione - chiamata SOLO quando serve
+  const validateForm = useCallback(() => {
+    if (!form.day || !form.year || !selectedLocation) {
+      return { valid: false, error: "Please fill in all required fields" };
+    }
 
     const dateValidationError = validateNatalDate(
       form.day,
@@ -158,14 +156,39 @@ export default function NatalScreen() {
     );
 
     if (dateValidationError) {
-      setDateError(dateValidationError.message);
-      setDateErrorField(dateValidationError.field);
+      return { 
+        valid: false, 
+        error: dateValidationError.message,
+        field: dateValidationError.field 
+      };
+    }
+
+    return { valid: true };
+  }, [form.day, form.month, form.year, selectedLocation, currentYear]);
+
+  // ✅ handleSubmit - validazione QUI
+  const handleSubmit = useCallback(() => {
+    if (!selectedLocation) return;
+    Keyboard.dismiss();
+
+    const validation = validateForm();
+    
+    if (!validation.valid) {
+      if (validation.field === 'day' || validation.field === 'year') {
+        setDateError(validation.error || null);
+        setDateErrorField(validation.field || null);
+      } else {
+        setFormError(validation.error || null);
+      }
       return;
     }
+
+    // ✅ Reset errori prima di procedere
     setDateError(null);
     setDateErrorField(null);
-    setIsLoading(true);
     setFormError(null);
+    setIsLoading(true);
+    
     try {
       const monthIndex = MONTHS.indexOf(form.month || "January");
       const hour = parseInt(form.hour || "12", 10);
@@ -191,7 +214,7 @@ export default function NatalScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [form, selectedLocation, validateForm]);
 
   const handleReset = () => {
     setPlanetDegrees(null);
@@ -218,8 +241,9 @@ export default function NatalScreen() {
                 accessibilityLabel={headerRightLabel}
                 accessibilityRole="button"
                 accessibilityHint={`Navigate to ${screenTitle}`}
+                style={styles.newChartBtn}
               >
-                <Text style={styles.resetText}>{headerRightLabel}</Text>
+                <Text style={styles.newChartBtnText}>{headerRightLabel}</Text>
               </TouchableOpacity>
             )
           }
@@ -252,7 +276,7 @@ export default function NatalScreen() {
                       dateErrorField === "day" && styles.inputError,
                     ]}
                     placeholder="Day"
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    placeholderTextColor={colors.placeholder}
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.day}
@@ -297,7 +321,7 @@ export default function NatalScreen() {
                       dateErrorField === "year" && styles.inputError,
                     ]}
                     placeholder="Year"
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    placeholderTextColor={colors.placeholder}
                     keyboardType="numeric"
                     maxLength={4}
                     value={form.year}
@@ -329,7 +353,7 @@ export default function NatalScreen() {
                   <TextInput
                     style={[styles.input, styles.inputSmall]}
                     placeholder="Hour"
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    placeholderTextColor={colors.placeholder}
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.hour}
@@ -346,7 +370,7 @@ export default function NatalScreen() {
                   <TextInput
                     style={[styles.input, styles.inputSmall]}
                     placeholder="Min"
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    placeholderTextColor={colors.placeholder}
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.minutes}
@@ -366,7 +390,7 @@ export default function NatalScreen() {
                   <TextInput
                     style={[styles.input, { flex: 1 }]}
                     placeholder="City, country"
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                    placeholderTextColor={colors.placeholder}
                     value={form.location}
                     onChangeText={(v) => updateForm("location", v)}
                     onSubmitEditing={() => {
@@ -401,8 +425,6 @@ export default function NatalScreen() {
                         size={16}
                         color={colors.accentMuted}
                         aria-hidden={true}
-                        accessibilityElementsHidden
-                        importantForAccessibility="no-hide-descendants"
                       />
                     )}
                   </TouchableOpacity>
@@ -420,7 +442,9 @@ export default function NatalScreen() {
                   <Text
                     style={styles.errorText}
                     accessibilityLiveRegion="assertive"
-                  />
+                  >
+                    {locationError}
+                  </Text>
                 )}
                 {locationResults.length > 0 && (
                   <View style={styles.locationList}>
@@ -485,10 +509,7 @@ export default function NatalScreen() {
           </>
         )}
 
-        {/* Bottom Sheet — month picker only. Location results render as an
-            inline list above instead of inside the sheet, since both can't
-            be visible/relevant at the same time and the inline list keeps
-            the keyboard up for fast re-search. */}
+        {/* Bottom Sheet */}
         <BottomSheet
           ref={bottomSheetRef}
           index={-1}
@@ -529,10 +550,8 @@ export default function NatalScreen() {
                     <Ionicons
                       name="checkmark"
                       size={14}
-                      color="rgba(200,185,240,0.8)"
+                      color={colors.accentText}
                       aria-hidden={true}
-                      accessibilityElementsHidden
-                      importantForAccessibility="no-hide-descendants"
                     />
                   )}
                 </TouchableOpacity>
@@ -558,15 +577,25 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? 8 : 0,
     paddingBottom: 16,
   },
-  resetText: {
-    fontFamily: "Inter_300Light",
+  newChartBtnText: {
+    fontFamily: fonts.sans,
     fontSize: 11,
     letterSpacing: 2,
     color: colors.accentMuted,
     textTransform: "uppercase",
   },
+  newChartBtn:{
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.accentBorder,
+    
+    paddingHorizontal: 6,
+    backgroundColor: 'transparent',
+    minHeight: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   screenTitle: {
-    fontFamily: "CormorantGaramond_300Light_Italic",
+    fontFamily: fonts.serif,
     fontSize: 44,
     color: colors.textPrimary,
     marginTop: 20,
@@ -574,15 +603,15 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   fieldLabel: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 14,
     letterSpacing: 3,
-    color: "rgba(255, 255, 255, 0.76)",
+    color: colors.textSecondary,
     textTransform: "uppercase",
     marginBottom: 15,
   },
   optional: {
-    color: "rgba(255,255,255,0.30)",
+    color: colors.optional,
   },
   dateRow: {
     flexDirection: "row",
@@ -603,10 +632,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.3)",
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 20,
-    color: "rgba(255,255,255,0.85)",
+    borderBottomColor: colors.optional,
+    fontFamily: fonts.serif,
+    fontSize: 22,
+    color: colors.borderColor,
     height: 48,
   },
   inputSmall: {
@@ -616,7 +645,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   inputError: {
-    borderBottomColor: "#e08a8a",
+    borderBottomColor: colors.error,
   },
   inputMonth: {
     flex: 1,
@@ -624,19 +653,19 @@ const styles = StyleSheet.create({
     minWidth: 120,
   },
   inputText: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 18,
-    color: "rgba(255,255,255,0.85)",
+    fontFamily: fonts.serif,
+    fontSize: 22,
+    color: colors.borderColor,
   },
   inputPlaceholder: {
-    fontFamily: "CormorantGaramond_400Regular",
-    color: "rgba(255, 255, 255, 0.45)",
+    fontFamily: fonts.serif,
+    color: colors.placeholder,
     fontSize: 20,
   },
   colon: {
-    fontFamily: "CormorantGaramond_300Light",
+    fontFamily: fonts.serifLight,
     fontSize: 20,
-    color: "rgba(255,255,255,0.3)",
+    color: colors.optional,
   },
   searchIconBtn: {
     padding: 12,
@@ -644,17 +673,17 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.dividerLight,
   },
   selectedLocation: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 10,
     letterSpacing: 1,
     color: colors.accentMuted,
     marginBottom: 20,
   },
   errorText: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: "#e08a8a",
+    color: colors.error,
     marginBottom: 16,
   },
   locationList: {
@@ -666,8 +695,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.divider,
   },
   locationItemText: {
-    fontFamily: "CormorantGaramond_400Regular",
+    fontFamily: fonts.serif,
     fontSize: 16,
-    color: "rgba(255,255,255,0.5)",
+    color: colors.textSecondary,
   },
 });

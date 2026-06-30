@@ -14,7 +14,7 @@ import DegreeCard from "@/components/DegreeCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import PrimaryButton from "@/components/ui/primary-button";
 import { SIGNS } from "@/constants/appConstants";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 import { useRandomDegree, useSearchDegree } from "@/hooks/use-degree";
 import { ApiError } from "@/services/api";
 import ScreenHeader from "@/components/ui/screen-header";
@@ -198,7 +198,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 24,
     paddingTop: Platform.OS === "android" ? 8 : 0,
-    paddingBottom: 16,
   },
   navButtons: {
     flexDirection: "row",
@@ -218,9 +217,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   errorText: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 14,
-    color: "rgba(255,255,255,0.55)",
+    color: colors.borderColor,
     textAlign: "center",
   },
   retryBtn: {

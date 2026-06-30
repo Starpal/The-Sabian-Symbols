@@ -20,9 +20,10 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 5,
+    paddingHorizontal: 2,
     paddingTop: Platform.OS === "android" ? 8 : 0,
     paddingBottom: 16,
+    marginTop: 10
   },
   right: {
     marginLeft: "auto",

@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { colors, fonts } from "@/constants/theme";
 
 type Props = {
   title: string;
@@ -29,9 +30,7 @@ export default function OracleButton({
           name={icon}
           size={24}
           color={
-            variant === "primary"
-              ? "rgba(200,185,240,0.8)"
-              : "rgba(255, 255, 255, 0.8)"
+            variant === "primary" ? colors.accentText : colors.borderColor
           }
           aria-hidden={true}
           accessibilityElementsHidden
@@ -60,8 +59,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 15,
     paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.placeholder,
     borderRadius: 2,
     marginBottom: 12,
     backgroundColor: "rgba(255,255,255,0.01)",
@@ -84,13 +83,13 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     textAlign: "right",
-    fontFamily: "CormorantGaramond_400Regular_Italic",
+    fontFamily: fonts.serifItalic,
     fontSize: 29,
     letterSpacing: 2,
-    color: "rgba(255, 255, 255, 0.8)",
+    color: colors.borderColor,
   },
 
   textPrimary: {
-    color: "rgba(200,185,240,0.97)",
+    color: colors.accentText,
   },
 });

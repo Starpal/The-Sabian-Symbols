@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from "react-native";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 
 type Props = TouchableOpacityProps & {
   label: string;
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     borderColor: colors.textDisabled,
   },
   label: {
-    fontFamily: "CormorantGaramond_400Regular",
+    fontFamily: fonts.serif,
     fontSize: 25,
     letterSpacing: 3,
     color: colors.accent,

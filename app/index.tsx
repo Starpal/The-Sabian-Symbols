@@ -1,7 +1,7 @@
 import Star from "@/components/Star";
 import HomeButton from "@/components/ui/home-button";
 import { STARS } from "@/constants/appConstants";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
@@ -76,29 +76,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 28,
-    gap: 80,
   },
   title: {
-    fontFamily: "CormorantGaramond_600SemiBold",
+    fontFamily: fonts.serifMediumBold,
     fontSize: 82,
-    color: "#ffffffd8",
+    color: colors.borderColor,
     textAlign: "center",
     lineHeight: 74,
     marginBottom: 20,
     paddingTop: 10,
   },
   subtitle: {
-    fontFamily: "Inter_400Regular",
+    fontFamily: fonts.sansRegular,
     textTransform: "uppercase",
     fontSize: 12,
     letterSpacing: 3,
-    color: "rgba(255, 255, 255, 0.55)",
+    color: colors.textSecondary,
     textAlign: "center",
   },
   divider: {
     width: "100%",
     height: 50,
     backgroundColor: "rgba(228, 37, 37, 0.08)",
-    marginBottom: 20,
+    marginBottom: 60,
   },
 });

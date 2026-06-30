@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Degree } from "@/types/api";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 
 type Props = Pick<
   Degree,
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 10,
   },
   signRow: {
     flexDirection: "row",
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   signLabel: {
-    fontFamily: "CormorantGaramond_600SemiBold",
+    fontFamily: fonts.serifMediumBold,
     fontSize: 30,
     letterSpacing: 2,
-    color: "rgba(200,185,240,0.97)",
+    color: colors.accentText,
     textTransform: "uppercase",
   },
   divider: {
@@ -72,20 +72,20 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   title: {
-    fontFamily: "CormorantGaramond_400Regular_Italic",
-    fontSize: 32,
-    color: "#ffffff",
+    fontFamily: fonts.serifItalic,
+    fontSize: 34,
+    color: colors.textPrimary,
     lineHeight: 36,
-    marginBottom: 15,
+    marginBottom: 20,
     textAlign: "center",
   },
   keynote: {
-    fontFamily: "Inter_300Light",
+    fontFamily: fonts.sans,
     fontSize: 17,
     letterSpacing: 2,
-    color: "rgba(255,255,255,0.55)",
+    color: colors.textSecondary,
     textTransform: "uppercase",
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: "justify",
   },
   descriptionBox: {
@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   description: {
-    fontFamily: "CormorantGaramond_500Medium",
-    fontSize: 26,
+    fontFamily: fonts.serifMedium,
+    fontSize: 27,
     color: "rgba(255, 255, 255, 0.65)",
-    lineHeight: 29,
+    lineHeight: 31,
     textAlign: "justify",
   },
 });

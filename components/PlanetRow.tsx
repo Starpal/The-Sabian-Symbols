@@ -1,9 +1,13 @@
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  FontAwesome,
+} from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { PlanetDegree } from "@/types/api";
-import { colors } from "@/constants/theme";
+import { colors, fonts } from "@/constants/theme";
 
 type Props = Pick<PlanetDegree, "label" | "sign" | "signKey" | "degrees">;
 
@@ -37,7 +41,7 @@ export default function PlanetRow({ label, sign, signKey, degrees }: Props) {
         <MaterialCommunityIcons
           name={`zodiac-${signKey}` as any}
           size={18}
-          color={colors.accentMuted}
+          color={colors.accent}
           aria-hidden={true}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
@@ -47,7 +51,7 @@ export default function PlanetRow({ label, sign, signKey, degrees }: Props) {
       <Ionicons
         name="chevron-forward"
         size={14}
-        color={colors.textDisabled}
+        color={colors.textMuted}
         aria-hidden={true}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -63,12 +67,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.divider,
+    borderBottomColor: colors.textDisabled,
   },
   planet: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 18,
-    color: "rgba(255,255,255,0.75)",
+    fontFamily: fonts.serifItalic,
+    fontSize: 24,
+    color: colors.textPrimary,
     flex: 1,
     textTransform: "capitalize",
   },
@@ -79,9 +83,9 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   degrees: {
-    fontFamily: "Inter_300Light",
-    fontSize: 12,
+    fontFamily: fonts.sans,
+    fontSize: 16,
     letterSpacing: 1,
-    color: "rgba(255,255,255,0.4)",
+    color: colors.accent,
   },
 });
