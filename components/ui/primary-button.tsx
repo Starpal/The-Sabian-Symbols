@@ -6,14 +6,15 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
 } from 'react-native';
-import { colors, fonts } from '@/constants/theme';
+import { colors } from '@/constants/theme';
 
 type Props = TouchableOpacityProps & {
   label: string;
+  toScreen?: string;
   isLoading?: boolean;
 };
 
-export default function PrimaryButton({ label, isLoading, disabled, style, ...rest }: Props) {
+export default function PrimaryButton({ label, isLoading, disabled, style, toScreen, ...rest }: Props) {
   const isDisabled = disabled || isLoading;
 
   return (
@@ -21,6 +22,10 @@ export default function PrimaryButton({ label, isLoading, disabled, style, ...re
       style={[styles.btn, isDisabled && styles.btnDisabled, style]}
       disabled={isDisabled}
       activeOpacity={0.7}
+      accessibilityLabel={label}
+      accessibilityHint={`Navigate to ${toScreen} screen.`}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: false }}
       {...rest}>
       {isLoading ? (
         <ActivityIndicator size="small" color={colors.accentMuted} />

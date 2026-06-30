@@ -20,6 +20,9 @@ export default function OracleButton({
       style={[styles.btn, variant === "primary" && styles.btnPrimary]}
       activeOpacity={0.7}
       onPress={onPress}
+      accessibilityLabel={title}
+      accessibilityHint={`Navigate to ${title} screen.`}
+      accessibilityRole="button"
     >
       <View style={styles.iconWrap}>
         <Ionicons

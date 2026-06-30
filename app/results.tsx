@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
@@ -41,6 +41,10 @@ export default function ResultsScreen() {
   } = useLocalSearchParams<{ sign: string; degree: string; mode: Mode }>();
 
   const isRandomMode = mode === "random" && !initialSign;
+
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const previousScreen = (params.from as string) || "Home";
 
   // Current sign/degree being displayed. For random mode this starts empty
   // and gets "seeded" once the random fetch resolves; from then on every
@@ -95,6 +99,9 @@ export default function ResultsScreen() {
                 style={styles.navBtn}
                 disabled={isLoading || !seeded}
                 hitSlop={12}
+                accessibilityLabel={"Previous degree"}
+                accessibilityRole="button"
+                accessibilityHint={"Navigate to previous degree"}
               >
                 <Ionicons
                   name="chevron-back"
@@ -109,6 +116,9 @@ export default function ResultsScreen() {
                 style={styles.navBtn}
                 disabled={isLoading || !seeded}
                 hitSlop={12}
+                accessibilityLabel={"Next degree"}
+                accessibilityRole="button"
+                accessibilityHint={"Navigate to next degree"}
               >
                 <Ionicons
                   name="chevron-forward"
@@ -154,7 +164,11 @@ export default function ResultsScreen() {
             description={result.description}
           />
           <View style={styles.returnBtnWrapper}>
-            <PrimaryButton label="Return" onPress={() => router.back()} />
+            <PrimaryButton
+              label="Return"
+              onPress={() => router.back()}
+              toScreen={previousScreen}
+            />
           </View>
         </ScrollView>
       ) : null}

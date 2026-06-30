@@ -82,6 +82,9 @@ export default function SearchScreen() {
             style={[styles.field, selectedSign && styles.fieldActive]}
             onPress={() => openPicker("sign")}
             activeOpacity={0.7}
+            accessibilityLabel={selectedSign ?? "Select a sign"}
+            accessibilityRole="button"
+            accessibilityHint={"Select a Sign"}
           >
             <Text
               style={[
@@ -108,6 +111,12 @@ export default function SearchScreen() {
             onPress={() => openPicker("degree")}
             activeOpacity={0.7}
             disabled={!selectedSign}
+            accessibilityLabel={
+              selectedDegree !== null ? `${selectedDegree}°` : "Select a degree"
+            }
+            accessibilityRole="button"
+            accessibilityHint={"Select a Degree"}
+            accessibilityState={{ disabled: false }}
           >
             <Text
               style={[
@@ -132,6 +141,7 @@ export default function SearchScreen() {
           label="Search"
           disabled={!canSubmit}
           onPress={handleSubmit}
+          toScreen="Results"
         />
 
         {/* Bottom Sheet Picker */}
@@ -166,6 +176,13 @@ export default function SearchScreen() {
                       : handleSelectDegree(item as string)
                   }
                   activeOpacity={0.6}
+                  accessibilityLabel={isSign ? item : `${item}°`}
+                  accessibilityRole="button"
+                  accessibilityHint={
+                    isSign
+                      ? `${item} sign selected`
+                      : `${item}° degree selected`
+                  }
                 >
                   <Text
                     style={[

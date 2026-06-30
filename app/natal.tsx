@@ -163,6 +163,9 @@ export default function NatalScreen() {
     setFormError(null);
   };
 
+  const headerRightLabel = "New Chart";
+  const screenTitle = "Natal chart";
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -170,8 +173,13 @@ export default function NatalScreen() {
           onBack={showResults ? () => setShowResults(false) : undefined}
           right={
             showResults && (
-              <TouchableOpacity onPress={handleReset}>
-                <Text style={styles.resetText}>New chart</Text>
+              <TouchableOpacity
+                onPress={handleReset}
+                accessibilityLabel={headerRightLabel}
+                accessibilityRole="button"
+                accessibilityHint={`Navigate to ${screenTitle}`}
+              >
+                <Text style={styles.resetText}>{headerRightLabel}</Text>
               </TouchableOpacity>
             )
           }
@@ -188,7 +196,7 @@ export default function NatalScreen() {
               showsVerticalScrollIndicator={false}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.screenTitle}>Natal chart</Text>
+                <Text style={styles.screenTitle}>{screenTitle}</Text>
 
                 {/* Date row */}
                 <Text style={styles.fieldLabel}>Date of birth</Text>
@@ -208,6 +216,9 @@ export default function NatalScreen() {
                       Keyboard.dismiss();
                       bottomSheetRef.current?.expand();
                     }}
+                    accessibilityLabel={form.month || "Month"}
+                    accessibilityRole="button"
+                    accessibilityHint={`Insert birthday Month`}
                   >
                     <Text
                       style={
@@ -275,6 +286,9 @@ export default function NatalScreen() {
                       Keyboard.dismiss();
                       handleLocationSearch();
                     }}
+                    accessibilityLabel={"Search"}
+                    accessibilityRole="button"
+                    accessibilityHint={"Search for location"}
                   >
                     {isLoadingLocations ? (
                       <ActivityIndicator
@@ -306,6 +320,9 @@ export default function NatalScreen() {
                         style={styles.locationItem}
                         onPress={() => handleSelectLocation(item)}
                         activeOpacity={0.6}
+                        accessibilityLabel={item.name}
+                        accessibilityRole="button"
+                        accessibilityHint={"Select Location item"}
                       >
                         <Text style={styles.locationItemText} numberOfLines={2}>
                           {item.name}
@@ -324,6 +341,7 @@ export default function NatalScreen() {
             {/* Submit */}
             <PrimaryButton
               label="Calculate"
+              toScreen="Your Natal Degrees"
               isLoading={isLoading}
               disabled={!canSubmit}
               onPress={handleSubmit}
@@ -331,7 +349,7 @@ export default function NatalScreen() {
           </KeyboardAvoidingView>
         ) : (
           <>
-            <Text style={styles.screenTitle}>Your degrees</Text>
+            <Text style={styles.screenTitle}>Your Natal Degrees</Text>
             <Text style={styles.fieldLabel}>
               Tap a planet to see its Sabian symbol
             </Text>
@@ -381,6 +399,8 @@ export default function NatalScreen() {
                     bottomSheetRef.current?.close();
                   }}
                   activeOpacity={0.6}
+                  accessibilityLabel={item}
+                  accessibilityRole="button"
                 >
                   <Text
                     style={[
