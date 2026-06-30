@@ -47,7 +47,7 @@ export default function DegreeCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 15,
     paddingTop: 10,
   },
   signRow: {

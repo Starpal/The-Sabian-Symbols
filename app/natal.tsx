@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     fontFamily: fonts.serif,
-    fontSize: 22,
+    fontSize: 20,
     color: colors.borderColor,
   },
   inputPlaceholder: {
