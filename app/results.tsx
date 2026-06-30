@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -10,14 +10,14 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
 import DegreeCard from "@/components/DegreeCard";
 import LoadingScreen from "@/app/loading";
-import { SIGNS } from "@/constants/appConstants";
-import { fetchDegreeBySignAndDegree, fetchRandomDegree } from "@/services/api";
-import { colors } from "@/constants/theme";
-import { Degree } from "@/types/api";
 import PrimaryButton from "@/components/ui/primary-button";
+import { SIGNS } from "@/constants/appConstants";
+import { colors } from "@/constants/theme";
+import { useRandomDegree, useSearchDegree } from "@/hooks/use-degree";
+import { ApiError } from "@/services/api";
+import ScreenHeader from "@/components/ui/screen-header";
 
 type Mode = "search" | "random";
 
@@ -28,6 +28,11 @@ const getNextSign = (current: string, direction: "plus" | "minus"): string => {
   return idx === 0 ? SIGNS[SIGNS.length - 1] : SIGNS[idx - 1];
 };
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof ApiError
+    ? error.message
+    : "Something went wrong. Please try again.";
+
 export default function ResultsScreen() {
   const {
     sign: initialSign,
@@ -35,89 +40,77 @@ export default function ResultsScreen() {
     mode,
   } = useLocalSearchParams<{ sign: string; degree: string; mode: Mode }>();
 
-  const isRandom = mode === "random" && !initialSign;
+  const isRandomMode = mode === "random" && !initialSign;
 
-  // for random — fetch once, store locally
-  const [randomDegree, setRandomDegree] = useState<Degree | null>(null);
-  const [randomLoading, setRandomLoading] = useState(isRandom);
+  // Current sign/degree being displayed. For random mode this starts empty
+  // and gets "seeded" once the random fetch resolves; from then on every
+  // degree (including the random one) is read through the same search
+  // query, so there's a single source of truth and a single cache.
+  const [sign, setSign] = useState(initialSign ?? "");
+  const [degree, setDegree] = useState(Number(initialDegree) || 0);
+  const [seeded, setSeeded] = useState(!isRandomMode);
 
-  // for search/navigation — use tanstack cache
-  const [searchSign, setSearchSign] = useState(initialSign ?? "");
-  const [searchDegree, setSearchDegree] = useState(Number(initialDegree) || 0);
-  const [searchEnabled, setSearchEnabled] = useState(!isRandom);
+  const randomQuery = useRandomDegree(isRandomMode && !seeded);
+  const searchQuery = useSearchDegree(sign, degree, seeded);
 
-  const { data: searchResult, isFetching } = useQuery({
-    queryKey: ["degree", "search", searchSign, searchDegree],
-    queryFn: () => fetchDegreeBySignAndDegree(searchSign, searchDegree),
-    enabled: searchEnabled && !!searchSign && !!searchDegree,
-    staleTime: 1000 * 60 * 10,
-  });
-
-  // fetch random once on mount
   useEffect(() => {
-    if (!isRandom) return;
-    fetchRandomDegree()
-      .then((data) => {
-        const result = Array.isArray(data) ? data[0] : data;
-        setRandomDegree(result);
-        setSearchSign(result.sign);
-        setSearchDegree(result.degree);
-      })
-      .finally(() => setRandomLoading(false));
-  }, []);
+    if (!randomQuery.data || seeded) return;
+    setSign(randomQuery.data.sign);
+    setDegree(randomQuery.data.degree);
+    setSeeded(true);
+  }, [randomQuery.data, seeded]);
 
-  const degree = isRandom && !searchEnabled ? randomDegree : searchResult;
-  const isLoading = isRandom && !searchEnabled ? randomLoading : isFetching;
+  const result = seeded ? searchQuery.data : undefined;
+  const isLoading = seeded ? searchQuery.isFetching : randomQuery.isLoading;
+  const isError = seeded ? searchQuery.isError : randomQuery.isError;
+  const error = seeded ? searchQuery.error : randomQuery.error;
 
   const navigate = useCallback(
     (direction: "plus" | "minus") => {
-      let newDeg = direction === "plus" ? searchDegree + 1 : searchDegree - 1;
-      let newSign = searchSign;
+      let newDeg = direction === "plus" ? degree + 1 : degree - 1;
+      let newSign = sign;
 
       if (newDeg > 30) {
         newDeg = 1;
-        newSign = getNextSign(searchSign, "plus");
+        newSign = getNextSign(sign, "plus");
       } else if (newDeg < 1) {
         newDeg = 30;
-        newSign = getNextSign(searchSign, "minus");
+        newSign = getNextSign(sign, "minus");
       }
 
-      setSearchSign(newSign);
-      setSearchDegree(newDeg);
-      setSearchEnabled(true);
+      setSign(newSign);
+      setDegree(newDeg);
     },
-    [searchSign, searchDegree],
+    [sign, degree],
   );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={20} color={colors.textMuted} />
-        </TouchableOpacity>
+      <ScreenHeader/>
         <View style={styles.navButtons}>
           <TouchableOpacity
             onPress={() => navigate("minus")}
             style={styles.navBtn}
-            disabled={isLoading}
+            disabled={isLoading || !seeded}
             hitSlop={12}
           >
             <Ionicons
               name="chevron-back"
               size={18}
-              color={isLoading ? colors.divider : colors.textMuted}
+              color={isLoading || !seeded ? colors.divider : colors.textSecondary}
             />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigate("plus")}
             style={styles.navBtn}
-            disabled={isLoading}
+            disabled={isLoading || !seeded}
             hitSlop={12}
           >
             <Ionicons
               name="chevron-forward"
               size={18}
-              color={isLoading ? colors.divider : colors.textMuted}
+              color={isLoading || !seeded ? colors.divider : colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
@@ -125,19 +118,37 @@ export default function ResultsScreen() {
 
       {isLoading ? (
         <LoadingScreen />
-      ) : degree ? (
+      ) : isError ? (
+        <View style={styles.centered}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={32}
+            color={colors.textMuted}
+          />
+          <Text style={styles.errorText}>{getErrorMessage(error)}</Text>
+          <PrimaryButton
+            label="Try again"
+            onPress={() =>
+              seeded ? searchQuery.refetch() : randomQuery.refetch()
+            }
+            style={styles.retryBtn}
+          />
+        </View>
+      ) : result ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <DegreeCard
-            sign={degree.sign}
-            degree={degree.degree}
-            title={degree.title}
-            keynote={degree.keynote}
-            description={degree.description}
+            sign={result.sign}
+            degree={result.degree}
+            title={result.title}
+            keynote={result.keynote}
+            description={result.description}
           />
+          <View style={styles.returnBtnWrapper}>
             <PrimaryButton label="Return" onPress={() => router.back()} />
+          </View>
         </ScrollView>
       ) : null}
     </SafeAreaView>
@@ -166,5 +177,27 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 48,
+  },
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    gap: 16,
+  },
+  errorText: {
+    fontFamily: "Inter_300Light",
+    fontSize: 14,
+    color: "rgba(255,255,255,0.55)",
+    textAlign: "center",
+  },
+  retryBtn: {
+    width: "auto",
+    paddingHorizontal: 32,
+    marginBottom: 0,
+  },
+  returnBtnWrapper: {
+    marginTop: 30,
+    paddingHorizontal: 24,
   },
 });

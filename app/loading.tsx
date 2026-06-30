@@ -1,38 +1,49 @@
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@/constants/theme";
 import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import Star from "@/components/star";
 import { STARS } from "@/constants/appConstants";
+import { colors } from "@/constants/theme";
 
 export default function LoadingScreen() {
   const rotation = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0.3)).current;
 
-useEffect(() => {
-  Animated.loop(
-    Animated.timing(rotation, {
-      toValue: 1,
-      duration: 5000,
-      useNativeDriver: true,
-    })
-  ).start();
-
-  Animated.loop(
-    Animated.sequence([
-      Animated.timing(opacity, {
+  useEffect(() => {
+    const spin = Animated.loop(
+      Animated.timing(rotation, {
         toValue: 1,
-        duration: 1500,
+        duration: 5000,
         useNativeDriver: true,
       }),
-      Animated.timing(opacity, {
-        toValue: 0.4,
-        duration: 1500,
-        useNativeDriver: true,
-      }),
-    ])
-  ).start();
-}, []);
+    );
+
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.4,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    spin.start();
+    pulse.start();
+
+    // Stop animations on unmount instead of letting them run against a
+    // detached node — avoids the classic "Animated: useNativeDriver..."
+    // warning spam when this screen unmounts mid-loop.
+    return () => {
+      spin.stop();
+      pulse.stop();
+    };
+  }, [opacity, rotation]);
 
   const rotate = rotation.interpolate({
     inputRange: [0, 1],
@@ -64,6 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     alignItems: "center",
     justifyContent: "center",
+    gap: 20,
   },
   starsContainer: {
     position: "absolute",

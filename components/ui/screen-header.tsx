@@ -14,7 +14,7 @@ export default function ScreenHeader({ right, onBack }: Props) {
     <View style={styles.header}>
       {onBack ? (
         <TouchableOpacity onPress={onBack} hitSlop={12}>
-          <Ionicons name="arrow-back" size={20} color={colors.textMuted} />
+          <Ionicons name="arrow-back" size={20} color={colors.accent} />
         </TouchableOpacity>
       ) : (
         <BackButton />

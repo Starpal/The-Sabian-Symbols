@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import React, {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -24,13 +25,13 @@ import {
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PlanetRow from "@/components/PlanetRow";
-import { MONTHS } from "@/constants/appConstants";
-import { fetchCoordinates } from "@/services/api";
-import { Origin, Horoscope } from "circular-natal-horoscope-js";
-import { LocationItem, PlanetDegree } from "@/types/api";
 import ScreenHeader from "@/components/ui/screen-header";
 import PrimaryButton from "@/components/ui/primary-button";
+import { MONTHS } from "@/constants/appConstants";
 import { colors } from "@/constants/theme";
+import { fetchCoordinates, ApiError } from "@/services/api";
+import { computePlanetDegrees } from "@/services/astrology";
+import { LocationItem, PlanetDegree } from "@/types/api";
 
 interface FormState {
   day: string;
@@ -50,6 +51,11 @@ const INITIAL_FORM: FormState = {
   location: "",
 };
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof ApiError
+    ? error.message
+    : "Couldn't reach the server. Please try again.";
+
 export default function NatalScreen() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [showResults, setShowResults] = useState(false);
@@ -62,28 +68,50 @@ export default function NatalScreen() {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const [sheetMode, setSheetMode] = useState<"month" | "location">("month");
   const snapPoints = useMemo(() => ["45%"], []);
+
+  // Cancel any in-flight geocoding request on unmount so a slow response
+  // can't try to update state after the screen is gone.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const updateForm = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (field === "location") {
       setSelectedLocation(null);
       setLocationResults([]);
+      setLocationError(null);
     }
   };
 
   const handleLocationSearch = useCallback(async () => {
-    if (!form.location.trim()) return;
+    const query = form.location.trim();
+    if (!query) return;
+
+    // Cancel any previous request still in flight before starting a new one
+    // — otherwise a slow first response can overwrite a faster later one.
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsLoadingLocations(true);
+    setLocationError(null);
     try {
-      const results = await fetchCoordinates(form.location);
+      const results = await fetchCoordinates(query, controller.signal);
       setLocationResults(results);
+      if (results.length === 0) {
+        setLocationError("No places found. Try a different search.");
+      }
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      setLocationError(getErrorMessage(error));
     } finally {
-      setIsLoadingLocations(false);
+      if (!controller.signal.aborted) setIsLoadingLocations(false);
     }
   }, [form.location]);
 
@@ -91,53 +119,37 @@ export default function NatalScreen() {
     setSelectedLocation(item);
     setForm((prev) => ({ ...prev, location: item.name }));
     setLocationResults([]);
-    setSheetMode("month");
-    bottomSheetRef.current?.close();
+    setLocationError(null);
   }, []);
 
-  const canSubmit = form.day && form.year && selectedLocation;
+  const canSubmit = Boolean(form.day && form.year && selectedLocation);
 
   const handleSubmit = () => {
     if (!canSubmit || !selectedLocation) return;
     setIsLoading(true);
+    setFormError(null);
     try {
       const monthIndex = MONTHS.indexOf(form.month || "January");
-      const hour = parseInt(form.hour || "12");
-      const minute = parseInt(form.minutes || "0");
+      const hour = parseInt(form.hour || "12", 10);
+      const minute = parseInt(form.minutes || "0", 10);
 
-      const origin = new Origin({
-        year: parseInt(form.year),
+      const planets = computePlanetDegrees({
+        year: parseInt(form.year, 10),
         month: monthIndex,
-        date: parseInt(form.day),
+        day: parseInt(form.day, 10),
         hour,
         minute,
         latitude: parseFloat(selectedLocation.lat),
         longitude: parseFloat(selectedLocation.lon),
       });
 
-      const horoscope = new Horoscope({ origin, language: "en" });
-
-      const celestialBodies = horoscope.CelestialBodies.all;
-      const celestialPoints = horoscope.CelestialPoints.all;
-
-      celestialPoints.forEach((point: any) => celestialBodies.push(point));
-      celestialBodies.push(horoscope.Ascendant);
-      celestialBodies.push(horoscope.Midheaven);
-
-      const planets: PlanetDegree[] = celestialBodies
-        .filter((el: any) => el.key !== "sirius" && el.key !== "southnode")
-        .map((el: any) => ({
-          key: el.key,
-          label: el.label,
-          sign: el.Sign?.label ?? "",
-          signKey: el.Sign?.key ?? "",
-          degrees: el.ChartPosition?.Ecliptic?.ArcDegreesFormatted30 ?? "",
-        }));
-
       setPlanetDegrees(planets);
       setShowResults(true);
     } catch (e) {
       console.error("[handleSubmit]", e);
+      setFormError(
+        "Couldn't calculate this chart. Double-check the date and try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -148,9 +160,8 @@ export default function NatalScreen() {
     setForm(INITIAL_FORM);
     setSelectedLocation(null);
     setShowResults(false);
+    setFormError(null);
   };
-
-  const locationResultName = locationResults.map((i) => i.name);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -262,7 +273,6 @@ export default function NatalScreen() {
                     style={styles.searchIconBtn}
                     onPress={() => {
                       Keyboard.dismiss();
-                      setSheetMode("location");
                       handleLocationSearch();
                     }}
                   >
@@ -285,6 +295,9 @@ export default function NatalScreen() {
                     ✓ {selectedLocation.name}
                   </Text>
                 )}
+                {locationError && (
+                  <Text style={styles.errorText}>{locationError}</Text>
+                )}
                 {locationResults.length > 0 && (
                   <View style={styles.locationList}>
                     {locationResults.map((item) => (
@@ -300,6 +313,11 @@ export default function NatalScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
+                )}
+                {formError && (
+                  <Text style={[styles.errorText, { marginTop: 8 }]}>
+                    {formError}
+                  </Text>
                 )}
               </View>
             </ScrollView>
@@ -334,7 +352,10 @@ export default function NatalScreen() {
           </>
         )}
 
-        {/* Bottom Sheet — month picker + location results */}
+        {/* Bottom Sheet — month picker only. Location results render as an
+            inline list above instead of inside the sheet, since both can't
+            be visible/relevant at the same time and the inline list keeps
+            the keyboard up for fast re-search. */}
         <BottomSheet
           ref={bottomSheetRef}
           index={-1}
@@ -344,12 +365,11 @@ export default function NatalScreen() {
           handleIndicatorStyle={styles.sheetHandle}
         >
           <BottomSheetFlatList
-            data={sheetMode === "location" ? locationResultName : MONTHS}
-            keyExtractor={(item, index) => `${item}-${index}`}
+            data={MONTHS}
+            keyExtractor={(item) => item}
             contentContainerStyle={styles.sheetList}
             renderItem={({ item }) => {
-              const isMonth = locationResults.length === 0;
-              const isSelected = isMonth && item === form.month;
+              const isSelected = item === form.month;
               return (
                 <TouchableOpacity
                   style={[
@@ -357,14 +377,8 @@ export default function NatalScreen() {
                     isSelected && styles.sheetItemSelected,
                   ]}
                   onPress={() => {
-                    if (isMonth) {
-                      updateForm("month", item);
-                      setSheetMode("month");
-                      bottomSheetRef.current?.close();
-                    } else {
-                      const loc = locationResults.find((l) => l.name === item);
-                      if (loc) handleSelectLocation(loc);
-                    }
+                    updateForm("month", item);
+                    bottomSheetRef.current?.close();
                   }}
                   activeOpacity={0.6}
                 >
@@ -492,6 +506,13 @@ const styles = StyleSheet.create({
     color: colors.accentMuted,
     marginBottom: 20,
   },
+  errorText: {
+    fontFamily: "Inter_300Light",
+    fontSize: 12,
+    letterSpacing: 0.5,
+    color: "#e08a8a",
+    marginBottom: 16,
+  },
   locationList: {
     marginBottom: 16,
   },
@@ -504,26 +525,6 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_400Regular",
     fontSize: 16,
     color: "rgba(255,255,255,0.5)",
-  },
-  submitBtn: {
-    width: "100%",
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.accentBorder,
-    borderRadius: 2,
-    alignItems: "center",
-  },
-  submitBtnDisabled: {
-    borderColor: colors.borderColor,
-  },
-  submitText: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 25,
-    letterSpacing: 3,
-    color: colors.accent,
-  },
-  submitTextDisabled: {
-    color: colors.textDisabled,
   },
   sheetBg: {
     backgroundColor: colors.bgSheet,
