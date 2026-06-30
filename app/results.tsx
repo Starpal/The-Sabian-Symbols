@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DegreeCard from "@/components/DegreeCard";
-import LoadingScreen from "@/app/loading";
+import LoadingScreen from "@/components/LoadingScreen";
 import PrimaryButton from "@/components/ui/primary-button";
 import { SIGNS } from "@/constants/appConstants";
 import { colors } from "@/constants/theme";
@@ -87,33 +87,40 @@ export default function ResultsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-      <ScreenHeader/>
-        <View style={styles.navButtons}>
-          <TouchableOpacity
-            onPress={() => navigate("minus")}
-            style={styles.navBtn}
-            disabled={isLoading || !seeded}
-            hitSlop={12}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={18}
-              color={isLoading || !seeded ? colors.divider : colors.textSecondary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigate("plus")}
-            style={styles.navBtn}
-            disabled={isLoading || !seeded}
-            hitSlop={12}
-          >
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={isLoading || !seeded ? colors.divider : colors.textSecondary}
-            />
-          </TouchableOpacity>
-        </View>
+        <ScreenHeader
+          right={
+            <View style={styles.navButtons}>
+              <TouchableOpacity
+                onPress={() => navigate("minus")}
+                style={styles.navBtn}
+                disabled={isLoading || !seeded}
+                hitSlop={12}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={18}
+                  color={
+                    isLoading || !seeded ? colors.divider : colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigate("plus")}
+                style={styles.navBtn}
+                disabled={isLoading || !seeded}
+                hitSlop={12}
+              >
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={
+                    isLoading || !seeded ? colors.divider : colors.textSecondary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+          }
+        />
       </View>
 
       {isLoading ? (

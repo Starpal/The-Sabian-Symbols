@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: "#ffffff",
     lineHeight: 36,
-    marginBottom: 22,
+    marginBottom: 15,
     textAlign: "center",
   },
   keynote: {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: "rgba(255,255,255,0.4)",
     textTransform: "uppercase",
-    marginBottom: 15,
+    marginBottom: 20,
     textAlign: "justify",
   },
   descriptionBox: {

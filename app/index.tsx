@@ -1,10 +1,10 @@
+import Star from "@/components/Star";
+import HomeButton from "@/components/ui/home-button";
+import { STARS } from "@/constants/appConstants";
+import { colors } from "@/constants/theme";
+import { router } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
-import Star from "@/components/star";
-import HomeButton from "@/components/ui/home-button";
-import { router } from "expo-router";
-import { colors } from "@/constants/theme";
-import { STARS } from "@/constants/appConstants";
 
 const FadeInView: React.FC<{ children: React.ReactNode; delay?: number }> = ({
   children,

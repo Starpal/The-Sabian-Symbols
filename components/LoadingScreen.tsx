@@ -1,9 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
-import Star from "@/components/star";
+import Star from "@/components/Star";
 import { STARS } from "@/constants/appConstants";
 import { colors } from "@/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View } from "react-native";
 
 export default function LoadingScreen() {
   const rotation = useRef(new Animated.Value(0)).current;

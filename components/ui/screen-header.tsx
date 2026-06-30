@@ -1,8 +1,8 @@
-import React from 'react';
-import { Platform, StyleSheet, View, TouchableOpacity } from 'react-native';
-import BackButton from './back-button';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/constants/theme';
+import React from "react";
+import { Platform, StyleSheet, View, TouchableOpacity } from "react-native";
+import BackButton from "./back-button";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/constants/theme";
 
 type Props = {
   right?: React.ReactNode;
@@ -19,17 +19,21 @@ export default function ScreenHeader({ right, onBack }: Props) {
       ) : (
         <BackButton />
       )}
-      {right && <View>{right}</View>}
+      {right && <View style={styles.right}>{right}</View>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: Platform.OS === 'android' ? 8 : 0,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === "android" ? 8 : 0,
     paddingBottom: 16,
+  },
+  right: {
+    marginLeft: "auto",
   },
 });
