@@ -1,9 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { router } from "expo-router";
 import React, {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -54,6 +52,7 @@ const INITIAL_FORM: FormState = {
 
 export default function NatalScreen() {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
+  const [showResults, setShowResults] = useState(false);
   const [locationResults, setLocationResults] = useState<LocationItem[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationItem | null>(
     null,
@@ -136,6 +135,7 @@ export default function NatalScreen() {
         }));
 
       setPlanetDegrees(planets);
+      setShowResults(true);
     } catch (e) {
       console.error("[handleSubmit]", e);
     } finally {
@@ -147,6 +147,7 @@ export default function NatalScreen() {
     setPlanetDegrees(null);
     setForm(INITIAL_FORM);
     setSelectedLocation(null);
+    setShowResults(false);
   };
 
   const locationResultName = locationResults.map((i) => i.name);
@@ -154,13 +155,18 @@ export default function NatalScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
-   <ScreenHeader right={planetDegrees && (
-  <TouchableOpacity onPress={handleReset}>
-    <Text style={styles.resetText}>New chart</Text>
-  </TouchableOpacity>
-)} />
+        <ScreenHeader
+          onBack={showResults ? () => setShowResults(false) : undefined}
+          right={
+            showResults && (
+              <TouchableOpacity onPress={handleReset}>
+                <Text style={styles.resetText}>New chart</Text>
+              </TouchableOpacity>
+            )
+          }
+        />
 
-        {!planetDegrees ? (
+        {!showResults ? (
           <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -298,12 +304,12 @@ export default function NatalScreen() {
               </View>
             </ScrollView>
             {/* Submit */}
-          <PrimaryButton
-  label="Calculate"
-  isLoading={isLoading}
-  disabled={!canSubmit}
-  onPress={handleSubmit}
-/>
+            <PrimaryButton
+              label="Calculate"
+              isLoading={isLoading}
+              disabled={!canSubmit}
+              onPress={handleSubmit}
+            />
           </KeyboardAvoidingView>
         ) : (
           <>
@@ -339,7 +345,7 @@ export default function NatalScreen() {
         >
           <BottomSheetFlatList
             data={sheetMode === "location" ? locationResultName : MONTHS}
-            keyExtractor={(item) => item}
+            keyExtractor={(item, index) => `${item}-${index}`}
             contentContainerStyle={styles.sheetList}
             renderItem={({ item }) => {
               const isMonth = locationResults.length === 0;

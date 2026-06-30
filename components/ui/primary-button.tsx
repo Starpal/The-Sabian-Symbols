@@ -34,23 +34,53 @@ export default function PrimaryButton({ label, isLoading, disabled, style, ...re
 }
 
 const styles = StyleSheet.create({
-  btn: {
-    width: '100%',
+  // btn: {
+  //   width: '100%',
+  //   paddingVertical: 15,
+  //   borderWidth: StyleSheet.hairlineWidth,
+  //   borderColor: colors.accentBorder,
+  //   borderRadius: 2,
+  //   alignItems: 'center',
+  // },
+  // btnDisabled: {
+  //   borderColor: colors.dividerLight,
+  // },
+  // label: {
+  //   fontFamily: fonts.serif,
+  //   fontSize: 25,
+  //   letterSpacing: 3,
+  //   color: colors.accent,
+  //   textAlign: 'center',
+  // },
+  // labelDisabled: {
+  //   color: colors.textDisabled,
+  //   textAlign: 'center',
+  //   submitBtn: {
+  //   width: "100%",
+  //   paddingVertical: 15,
+  //   borderWidth: StyleSheet.hairlineWidth,
+  //   borderColor: colors.accentBorder,
+  //   borderRadius: 2,
+  //   alignItems: "center",
+  //   marginBottom: 24,
+  // },
+    btn: {
+    width: "100%",
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.accentBorder,
     borderRadius: 2,
-    alignItems: 'center',
+    alignItems: "center",
+    marginBottom: 24,
   },
   btnDisabled: {
-    borderColor: colors.dividerLight,
+    borderColor: colors.textDisabled,
   },
   label: {
-    fontFamily: fonts.serif,
+    fontFamily: "CormorantGaramond_400Regular",
     fontSize: 25,
     letterSpacing: 3,
     color: colors.accent,
-    textTransform: 'uppercase',
   },
   labelDisabled: {
     color: colors.textDisabled,

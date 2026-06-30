@@ -4,12 +4,7 @@ import Star from "@/components/star";
 import HomeButton from "@/components/ui/home-button";
 import { router } from "expo-router";
 import { colors } from "@/constants/theme";
-
-const STARS = Array.from({ length: 80 }).map(() => ({
-  top: `${Math.random() * 100}%`,
-  left: `${Math.random() * 100}%`,
-  size: Math.random() * 2 + 0.5, // 0.5 → 2.5 px
-}));
+import { STARS } from "@/constants/appConstants";
 
 const FadeInView: React.FC<{ children: React.ReactNode; delay?: number }> = ({
   children,
@@ -80,11 +75,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 28,
     gap: 80,
-  },
-  star: {
-    position: "absolute",
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.3)",
   },
   title: {
     fontFamily: "CormorantGaramond_600SemiBold",

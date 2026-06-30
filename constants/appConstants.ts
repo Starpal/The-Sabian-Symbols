@@ -2,6 +2,12 @@ import { Dimensions, Platform } from "react-native";
 
 const { height } = Dimensions.get("window");
 
+export const STARS = Array.from({ length: 200 }).map(() => ({
+  top: `${Math.random() * 100}%`,
+  left: `${Math.random() * 100}%`,
+  size: Math.random() * 2 + 0.5, // 0.5 → 2.5 px
+}));
+
 export const SIGNS: string[] = [
   "Aries",
   "Taurus",

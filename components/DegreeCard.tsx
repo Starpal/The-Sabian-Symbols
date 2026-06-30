@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   description: {
-    fontFamily: "CormorantGaramond_300Light",
-    fontSize: 25,
-    color: colors.textSecondary,
+    fontFamily: "CormorantGaramond_500Medium",
+    fontSize: 26,
+    color: "rgba(255, 255, 255, 0.65)",
     lineHeight: 29,
     textAlign: "justify",
   },

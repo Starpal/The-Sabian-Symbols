@@ -1,8 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,10 +10,14 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
 import DegreeCard from "@/components/DegreeCard";
+import LoadingScreen from "@/app/loading";
 import { SIGNS } from "@/constants/appConstants";
-import { useRandomDegree, useSearchDegree } from "@/hooks/use-degree";
+import { fetchDegreeBySignAndDegree, fetchRandomDegree } from "@/services/api";
 import { colors } from "@/constants/theme";
+import { Degree } from "@/types/api";
+import PrimaryButton from "@/components/ui/primary-button";
 
 type Mode = "search" | "random";
 
@@ -26,88 +29,107 @@ const getNextSign = (current: string, direction: "plus" | "minus"): string => {
 };
 
 export default function ResultsScreen() {
-  const { sign: initialSign, degree: initialDegree, mode } =
-    useLocalSearchParams<{ sign: string; degree: string; mode: Mode }>();
+  const {
+    sign: initialSign,
+    degree: initialDegree,
+    mode,
+  } = useLocalSearchParams<{ sign: string; degree: string; mode: Mode }>();
 
-  // after random resolves, we switch to search mode with real sign/degree
+  const isRandom = mode === "random" && !initialSign;
+
+  // for random — fetch once, store locally
+  const [randomDegree, setRandomDegree] = useState<Degree | null>(null);
+  const [randomLoading, setRandomLoading] = useState(isRandom);
+
+  // for search/navigation — use tanstack cache
   const [searchSign, setSearchSign] = useState(initialSign ?? "");
   const [searchDegree, setSearchDegree] = useState(Number(initialDegree) || 0);
-  const [useSearch, setUseSearch] = useState(mode !== "random" || !!initialSign);
+  const [searchEnabled, setSearchEnabled] = useState(!isRandom);
 
-  const randomQuery = useRandomDegree();
-  const searchQuery = useSearchDegree(searchSign, searchDegree);
+  const { data: searchResult, isFetching } = useQuery({
+    queryKey: ["degree", "search", searchSign, searchDegree],
+    queryFn: () => fetchDegreeBySignAndDegree(searchSign, searchDegree),
+    enabled: searchEnabled && !!searchSign && !!searchDegree,
+    staleTime: 1000 * 60 * 10,
+  });
 
-  const { data: degree, isLoading, isError } = useSearch ? searchQuery : randomQuery;
-
-  // once random resolves, switch to search mode so arrows work correctly
+  // fetch random once on mount
   useEffect(() => {
-    if (!useSearch && degree) {
-      setSearchSign(degree.sign);
-      setSearchDegree(degree.degree);
-      setUseSearch(true);
-    }
-  }, [degree, useSearch]);
+    if (!isRandom) return;
+    fetchRandomDegree()
+      .then((data) => {
+        const result = Array.isArray(data) ? data[0] : data;
+        setRandomDegree(result);
+        setSearchSign(result.sign);
+        setSearchDegree(result.degree);
+      })
+      .finally(() => setRandomLoading(false));
+  }, []);
 
-  const navigate = (direction: "plus" | "minus") => {
-    let newDeg = direction === "plus" ? searchDegree + 1 : searchDegree - 1;
-    let newSign = searchSign;
+  const degree = isRandom && !searchEnabled ? randomDegree : searchResult;
+  const isLoading = isRandom && !searchEnabled ? randomLoading : isFetching;
 
-    if (newDeg > 30) {
-      newDeg = 1;
-      newSign = getNextSign(searchSign, "plus");
-    } else if (newDeg < 1) {
-      newDeg = 30;
-      newSign = getNextSign(searchSign, "minus");
-    }
+  const navigate = useCallback(
+    (direction: "plus" | "minus") => {
+      let newDeg = direction === "plus" ? searchDegree + 1 : searchDegree - 1;
+      let newSign = searchSign;
 
-    setSearchSign(newSign);
-    setSearchDegree(newDeg);
-  };
+      if (newDeg > 30) {
+        newDeg = 1;
+        newSign = getNextSign(searchSign, "plus");
+      } else if (newDeg < 1) {
+        newDeg = 30;
+        newSign = getNextSign(searchSign, "minus");
+      }
+
+      setSearchSign(newSign);
+      setSearchDegree(newDeg);
+      setSearchEnabled(true);
+    },
+    [searchSign, searchDegree],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={12}>
-          <Ionicons name="arrow-back" size={20} color={colors.accent} />
+          <Ionicons name="arrow-back" size={20} color={colors.textMuted} />
         </TouchableOpacity>
         <View style={styles.navButtons}>
           <TouchableOpacity
             onPress={() => navigate("minus")}
             style={styles.navBtn}
-            disabled={isLoading || !useSearch}
-            hitSlop={12}>
+            disabled={isLoading}
+            hitSlop={12}
+          >
             <Ionicons
               name="chevron-back"
               size={18}
-              color={isLoading || !useSearch ? colors.divider : colors.textSecondary}
+              color={isLoading ? colors.divider : colors.textMuted}
             />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigate("plus")}
             style={styles.navBtn}
-            disabled={isLoading || !useSearch}
-            hitSlop={12}>
+            disabled={isLoading}
+            hitSlop={12}
+          >
             <Ionicons
               name="chevron-forward"
               size={18}
-              color={isLoading || !useSearch ? colors.divider : colors.textSecondary}
+              color={isLoading ? colors.divider : colors.textMuted}
             />
           </TouchableOpacity>
         </View>
       </View>
 
       {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator color={colors.accentMuted} />
-        </View>
-      ) : isError ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>Something went wrong.</Text>
-        </View>
+        <LoadingScreen />
       ) : degree ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
+          contentContainerStyle={styles.scrollContent}
+        >
           <DegreeCard
             sign={degree.sign}
             degree={degree.degree}
@@ -115,9 +137,7 @@ export default function ResultsScreen() {
             keynote={degree.keynote}
             description={degree.description}
           />
-          <TouchableOpacity style={styles.homeLink} onPress={() => router.back()}>
-            <Text style={styles.homeLinkText}>Return</Text>
-          </TouchableOpacity>
+            <PrimaryButton label="Return" onPress={() => router.back()} />
         </ScrollView>
       ) : null}
     </SafeAreaView>
@@ -144,36 +164,7 @@ const styles = StyleSheet.create({
   navBtn: {
     padding: 6,
   },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   scrollContent: {
     paddingBottom: 48,
-  },
-  homeLink: {
-    width: "80%",
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.accentBorder,
-    borderRadius: 2,
-    alignItems: "center",
-    alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 24,
-  },
-  homeLinkText: {
-    textTransform: "uppercase",
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 25,
-    letterSpacing: 3,
-    color: colors.accent,
-  },
-  errorText: {
-    fontFamily: "Inter_300Light",
-    fontSize: 12,
-    color: colors.textMuted,
-    letterSpacing: 2,
   },
 });

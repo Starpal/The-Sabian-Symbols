@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { SIGNS } from "@/constants/appConstants";
 import ScreenHeader from "@/components/ui/screen-header";
 import { colors } from "@/constants/theme";
+import PrimaryButton from "@/components/ui/primary-button";
 
 type PickerType = "sign" | "degree" | null;
 
@@ -70,7 +71,7 @@ export default function SearchScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" />
 
-<ScreenHeader />
+        <ScreenHeader />
 
         <View style={styles.content}>
           <Text style={styles.screenTitle}>Search a Degree</Text>
@@ -127,18 +128,11 @@ export default function SearchScreen() {
         </View>
 
         {/* Submit */}
-        <TouchableOpacity
-          style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-          onPress={handleSubmit}
-          activeOpacity={0.7}
+        <PrimaryButton
+          label="Search"
           disabled={!canSubmit}
-        >
-          <Text
-            style={[styles.submitText, !canSubmit && styles.submitTextDisabled]}
-          >
-            Search
-          </Text>
-        </TouchableOpacity>
+          onPress={handleSubmit}
+        />
 
         {/* Bottom Sheet Picker */}
         <BottomSheet
@@ -249,28 +243,6 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 0.45)",
     fontSize: 20,
   },
-  submitBtn: {
-    width: "100%",
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.accentBorder,
-    borderRadius: 2,
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  submitBtnDisabled: {
-    borderColor: colors.textDisabled,
-  },
-  submitText: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 25,
-    letterSpacing: 3,
-    color: colors.accent,
-  },
-  submitTextDisabled: {
-    color: colors.textDisabled,
-  },
-
   // Bottom Sheet
   sheetBg: {
     backgroundColor: colors.bgSheet,
