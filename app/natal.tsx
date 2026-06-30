@@ -51,6 +51,21 @@ const INITIAL_FORM: FormState = {
   location: "",
 };
 
+// Strips non-digits and clamps the value to [min, max] once it has enough
+// digits to be unambiguous. A partial entry like "2" (for an hour field
+// capped at 23) is left alone so the user can still type "23" — but "29"
+// gets pulled down to "23" the moment it goes out of range.
+const sanitizeNumeric = (
+  raw: string,
+  { maxLength, min, max }: { maxLength: number; min: number; max: number },
+): string => {
+  const digits = raw.replace(/[^0-9]/g, "").slice(0, maxLength);
+  if (digits === "") return digits;
+  const n = parseInt(digits, 10);
+  if (n > max) return String(max);
+  if (digits.length === maxLength && n < min) return String(min);
+  return digits;
+};
 const getErrorMessage = (error: unknown): string =>
   error instanceof ApiError
     ? error.message
@@ -70,6 +85,7 @@ export default function NatalScreen() {
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -122,10 +138,46 @@ export default function NatalScreen() {
     setLocationError(null);
   }, []);
 
+  const currentYear = new Date().getFullYear();
+
+  // Day/hour/minutes are clamped to a plausible range as the user types
+  // (see sanitizeNumeric), but a day like 31 is only invalid in
+  // combination with a specific month/year (e.g. 31 February) — that
+  // can't be caught while typing, so it's validated here instead.
+  const validateDate = (): string | null => {
+    const day = parseInt(form.day, 10);
+    const year = parseInt(form.year, 10);
+    const monthIndex = MONTHS.indexOf(form.month || "January");
+
+    if (year < 0 || year > currentYear + 1) {
+      return `Year must be between 0 and ${currentYear + 1}.`;
+    }
+
+    const testDate = new Date(year, monthIndex, day);
+    const isRealDate =
+      testDate.getFullYear() === year &&
+      testDate.getMonth() === monthIndex &&
+      testDate.getDate() === day;
+
+    if (!isRealDate) {
+      return `${form.month || "January"} doesn't have a day ${day}.`;
+    }
+
+    return null;
+  };
+
   const canSubmit = Boolean(form.day && form.year && selectedLocation);
 
   const handleSubmit = () => {
     if (!canSubmit || !selectedLocation) return;
+
+    const dateValidationError = validateDate();
+    if (dateValidationError) {
+      setDateError(dateValidationError);
+      return;
+    }
+    setDateError(null);
+
     setIsLoading(true);
     setFormError(null);
     try {
@@ -161,6 +213,7 @@ export default function NatalScreen() {
     setSelectedLocation(null);
     setShowResults(false);
     setFormError(null);
+    setDateError(null);
   };
 
   const headerRightLabel = "New Chart";
@@ -202,17 +255,33 @@ export default function NatalScreen() {
 
                 {/* Date row */}
                 <Text style={styles.fieldLabel}>Date of birth</Text>
-                <View style={styles.dateRow}>
+                <View
+                  style={[styles.dateRow, dateError && styles.dateRowWithError]}
+                >
                   <TextInput
-                    style={[styles.input, styles.inputSmall]}
+                    style={[
+                      styles.input,
+                      styles.inputSmall,
+                      dateError && styles.inputError,
+                    ]}
                     placeholder="Day"
                     placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.day}
-                    onChangeText={(v) => updateForm("day", v)}
+                    onChangeText={(v) => {
+                      setDateError(null);
+                      updateForm(
+                        "day",
+                        sanitizeNumeric(v, { maxLength: 2, min: 1, max: 31 }),
+                      );
+                    }}
                     accessibilityLabel="Day of birth"
-                    accessibilityHint="Two digit day"
+                    accessibilityHint={
+                      dateError
+                        ? `Invalid. ${dateError}`
+                        : "Two digit day, between 1 and 31"
+                    }
                   />
                   <TouchableOpacity
                     style={[styles.input, styles.inputMonth]}
@@ -234,17 +303,34 @@ export default function NatalScreen() {
                     </Text>
                   </TouchableOpacity>
                   <TextInput
-                    style={[styles.input, styles.inputSmall]}
+                    style={[
+                      styles.input,
+                      styles.inputSmall,
+                      dateError && styles.inputError,
+                    ]}
                     placeholder="Year"
                     placeholderTextColor="rgba(255, 255, 255, 0.45)"
                     keyboardType="numeric"
                     maxLength={4}
                     value={form.year}
-                    onChangeText={(v) => updateForm("year", v)}
+                    onChangeText={(v) => {
+                      setDateError(null);
+                      updateForm("year", v.replace(/[^0-9]/g, "").slice(0, 4));
+                    }}
                     accessibilityLabel="Year of birth"
-                    accessibilityHint="Four digit year"
+                    accessibilityHint={
+                      dateError ? `Invalid. ${dateError}` : "Four digit year"
+                    }
                   />
                 </View>
+                {dateError && (
+                  <Text
+                    style={styles.errorText}
+                    accessibilityLiveRegion="assertive"
+                  >
+                    {dateError}
+                  </Text>
+                )}
 
                 {/* Time row */}
                 <Text style={styles.fieldLabel}>
@@ -258,7 +344,12 @@ export default function NatalScreen() {
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.hour}
-                    onChangeText={(v) => updateForm("hour", v)}
+                    onChangeText={(v) =>
+                      updateForm(
+                        "hour",
+                        sanitizeNumeric(v, { maxLength: 2, min: 0, max: 23 }),
+                      )
+                    }
                     accessibilityLabel="Hour of birth, optional"
                     accessibilityHint="24 hour format"
                   />
@@ -270,7 +361,12 @@ export default function NatalScreen() {
                     keyboardType="numeric"
                     maxLength={2}
                     value={form.minutes}
-                    onChangeText={(v) => updateForm("minutes", v)}
+                    onChangeText={(v) =>
+                      updateForm(
+                        "minutes",
+                        sanitizeNumeric(v, { maxLength: 2, min: 0, max: 59 }),
+                      )
+                    }
                     accessibilityLabel="Minute of birth, optional"
                   />
                 </View>
@@ -505,6 +601,9 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 60,
   },
+  dateRowWithError: {
+    marginBottom: 10,
+  },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -526,6 +625,9 @@ const styles = StyleSheet.create({
     minWidth: 70,
     textAlign: "center",
     paddingVertical: 10,
+  },
+  inputError: {
+    borderBottomColor: "#e08a8a",
   },
   inputMonth: {
     flex: 1,
