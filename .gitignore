@@ -43,9 +43,14 @@ app-example
 /ios
 /android
 
-
-.vscode/
-.claude/
+# AI tools
+CLAUDE.md
 AGENTS.md
+
+# Local settings
+.vscode/settings.json
+.vscode/extensions.json
+.claude/
+
 package-lock.json
 
