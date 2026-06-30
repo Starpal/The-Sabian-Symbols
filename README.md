@@ -1,50 +1,73 @@
-# Welcome to your Expo app 👋
+# ✦ The Sabian Symbols
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+[![Expo](https://img.shields.io/badge/Expo-54.0-blue)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React%20Native-0.81-61dafb)](https://reactnative.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## Get started
+> A mystical React Native application exploring the 360 degrees of the zodiac through the Sabian Symbols — a system of 360 evocative images for each degree of the zodiac.
 
-1. Install dependencies
+## ✧ Overview
 
-   ```bash
-   npm install
-   ```
+The Sabian Symbols app provides an intuitive interface to explore the Sabian Symbols, a profound divination tool and psychological mirror. Users can search specific degrees, generate random symbols, or compute their complete natal chart.
 
-2. Start the app
+**Live Demo**: [Expo Go](https://expo.dev/@yourusername/sabian-symbols) *(coming soon)*
 
-   ```bash
-   npx expo start
-   ```
+## ✧ Features
 
-In the output, you'll find options to open the app in a
+- **🔍 Search a Degree** — Explore any zodiac sign and degree combination
+- **🎲 Ask the Oracle** — Receive a random Sabian Symbol for inspiration
+- **🌟 Natal Chart** — Calculate planetary positions based on birth data
+- **♈ Astrological Navigation** — Browse degrees seamlessly with intuitive controls
+- **✨ Visual Poetry** — Elegant typography with Cormorant Garamond and Inter fonts
+- **📱 Cross-Platform** — iOS, Android, and Web support
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## ✧ Tech Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Framework**: React Native 0.81 + Expo 54
+- **Navigation**: Expo Router (file-based routing)
+- **State Management**: TanStack React Query v5
+- **Styling**: React Native StyleSheet with design tokens
+- **Fonts**: @expo-google-fonts (Cormorant Garamond + Inter)
+- **UI Components**: Gorhom Bottom Sheet, Gesture Handler
+- **Astrology Engine**: circular-natal-horoscope-js
+- **Geocoding**: Nominatim (OpenStreetMap)
+- **Language**: TypeScript 5.9
 
-## Get a fresh project
+## ✧ API Integration
+The app consumes a REST API for Sabian Symbol data:
 
-When you're ready, run:
+**Endpoint,	Method, Description**
+/degree	GET	Fetch a random symbol
+/DBdegree	POST	Fetch symbol by sign + degree
+Nominatim	GET	Geocode location for natal chart
+
+## ✧ Installation
+
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
+
+### Setup
 
 ```bash
-npm run reset-project
+# Clone the repository
+git clone https://github.com/Starpal/The-Sabian-Symbols.git
+cd The-Sabian-Symbols
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env
+# Add your API URL to .env:
+# EXPO_PUBLIC_API_URL=https://your-api-endpoint.com
+
+# Start the development server
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## ✧ Made with intuition and code ✧
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Stars are the poetry of the sky, and the Sabian Symbols are their verses.
