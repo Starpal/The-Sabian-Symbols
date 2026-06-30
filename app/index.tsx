@@ -37,7 +37,9 @@ export default function HomeScreen() {
       ))}
 
       <FadeInView delay={200}>
-        <Text style={styles.title}>Sabian Symbols</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Sabian Symbols
+        </Text>
         <Text style={styles.subtitle}>✧ 360 degrees of the zodiac ✧</Text>
       </FadeInView>
 

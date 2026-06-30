@@ -109,7 +109,9 @@ export default function ResultsScreen() {
                   color={
                     isLoading || !seeded ? colors.divider : colors.textSecondary
                   }
-                  aria-hidden={true} 
+                  aria-hidden={true}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -127,7 +129,9 @@ export default function ResultsScreen() {
                   color={
                     isLoading || !seeded ? colors.divider : colors.textSecondary
                   }
-                  aria-hidden={true} 
+                  aria-hidden={true}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
                 />
               </TouchableOpacity>
             </View>
@@ -143,9 +147,13 @@ export default function ResultsScreen() {
             name="alert-circle-outline"
             size={32}
             color={colors.textMuted}
-            aria-hidden={true} 
+            aria-hidden={true}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
           />
-          <Text style={styles.errorText}>{getErrorMessage(error)}</Text>
+          <Text style={styles.errorText} accessibilityLiveRegion="assertive">
+            {getErrorMessage(error)}
+          </Text>
           <PrimaryButton
             label="Try again"
             onPress={() =>

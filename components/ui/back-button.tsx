@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams
- } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { colors } from "@/constants/theme";
 
@@ -9,9 +8,9 @@ type BackButtonProps = {
 };
 
 export default function BackButton({ onPress }: BackButtonProps) {
-    const router = useRouter();
-    const params = useLocalSearchParams();
-    const previousScreen = (params.from as string) || "Home";
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const previousScreen = (params.from as string) || "Home";
   return (
     <TouchableOpacity
       onPress={onPress ?? (() => router.back())}
@@ -20,7 +19,14 @@ export default function BackButton({ onPress }: BackButtonProps) {
       accessibilityRole="button"
       accessibilityHint={`Navigate back to ${previousScreen} screen`}
     >
-      <Ionicons name="arrow-back" size={20} color={colors.accent} aria-hidden={true} />
+      <Ionicons
+        name="arrow-back"
+        size={20}
+        color={colors.accent}
+        aria-hidden={true}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
     </TouchableOpacity>
   );
 }

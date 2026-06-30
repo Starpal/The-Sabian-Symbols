@@ -74,8 +74,9 @@ export default function SearchScreen() {
         <ScreenHeader />
 
         <View style={styles.content}>
-          <Text style={styles.screenTitle}>Search a Degree</Text>
-
+          <Text style={styles.screenTitle} accessibilityRole="header">
+            Search a Degree
+          </Text>
           {/* Sign picker field */}
           <Text style={styles.fieldLabel}>Zodiac sign</Text>
           <TouchableOpacity
@@ -98,7 +99,9 @@ export default function SearchScreen() {
               name="chevron-down"
               size={12}
               color={colors.textDisabled}
-              aria-hidden={true} 
+              aria-hidden={true}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
             />
           </TouchableOpacity>
 
@@ -117,7 +120,7 @@ export default function SearchScreen() {
             }
             accessibilityRole="button"
             accessibilityHint={"Select a Degree"}
-            accessibilityState={{ disabled: false }}
+            accessibilityState={{ disabled: !selectedSign }}
           >
             <Text
               style={[
@@ -133,7 +136,9 @@ export default function SearchScreen() {
               name="chevron-down"
               size={12}
               color={colors.textDisabled}
-              aria-hidden={true} 
+              aria-hidden={true}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
             />
           </TouchableOpacity>
         </View>
@@ -199,7 +204,9 @@ export default function SearchScreen() {
                       name="checkmark"
                       size={14}
                       color="rgba(200,185,240,0.8)"
-                      aria-hidden={true} 
+                      aria-hidden={true}
+                      accessibilityElementsHidden
+                      importantForAccessibility="no-hide-descendants"
                     />
                   )}
                 </TouchableOpacity>

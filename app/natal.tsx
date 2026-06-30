@@ -196,7 +196,9 @@ export default function NatalScreen() {
               showsVerticalScrollIndicator={false}
             >
               <View style={{ flex: 1 }}>
-                <Text style={styles.screenTitle}>{screenTitle}</Text>
+                <Text style={styles.screenTitle} accessibilityRole="header">
+                  {screenTitle}
+                </Text>
 
                 {/* Date row */}
                 <Text style={styles.fieldLabel}>Date of birth</Text>
@@ -209,6 +211,8 @@ export default function NatalScreen() {
                     maxLength={2}
                     value={form.day}
                     onChangeText={(v) => updateForm("day", v)}
+                    accessibilityLabel="Day of birth"
+                    accessibilityHint="Two digit day"
                   />
                   <TouchableOpacity
                     style={[styles.input, styles.inputMonth]}
@@ -218,7 +222,8 @@ export default function NatalScreen() {
                     }}
                     accessibilityLabel={form.month || "Month"}
                     accessibilityRole="button"
-                    accessibilityHint={`Insert birthday Month`}
+                    accessibilityHint={"Insert birthday Month"}
+                    accessibilityState={{ expanded: false }}
                   >
                     <Text
                       style={
@@ -236,6 +241,8 @@ export default function NatalScreen() {
                     maxLength={4}
                     value={form.year}
                     onChangeText={(v) => updateForm("year", v)}
+                    accessibilityLabel="Year of birth"
+                    accessibilityHint="Four digit year"
                   />
                 </View>
 
@@ -252,6 +259,8 @@ export default function NatalScreen() {
                     maxLength={2}
                     value={form.hour}
                     onChangeText={(v) => updateForm("hour", v)}
+                    accessibilityLabel="Hour of birth, optional"
+                    accessibilityHint="24 hour format"
                   />
                   <Text style={styles.colon}>:</Text>
                   <TextInput
@@ -262,6 +271,7 @@ export default function NatalScreen() {
                     maxLength={2}
                     value={form.minutes}
                     onChangeText={(v) => updateForm("minutes", v)}
+                    accessibilityLabel="Minute of birth, optional"
                   />
                 </View>
 
@@ -279,6 +289,8 @@ export default function NatalScreen() {
                       handleLocationSearch();
                     }}
                     returnKeyType="search"
+                    accessibilityLabel="Place of birth"
+                    accessibilityHint="City and country, then search"
                   />
                   <TouchableOpacity
                     style={styles.searchIconBtn}
@@ -286,9 +298,12 @@ export default function NatalScreen() {
                       Keyboard.dismiss();
                       handleLocationSearch();
                     }}
-                    accessibilityLabel={"Search"}
+                    accessibilityLabel={
+                      isLoadingLocations ? "Searching" : "Search"
+                    }
                     accessibilityRole="button"
                     accessibilityHint={"Search for location"}
+                    accessibilityState={{ busy: isLoadingLocations }}
                   >
                     {isLoadingLocations ? (
                       <ActivityIndicator
@@ -300,18 +315,27 @@ export default function NatalScreen() {
                         name="search-outline"
                         size={16}
                         color={colors.accentMuted}
-                        aria-hidden={true} 
+                        aria-hidden={true}
+                        accessibilityElementsHidden
+                        importantForAccessibility="no-hide-descendants"
                       />
                     )}
                   </TouchableOpacity>
                 </View>
                 {selectedLocation && (
-                  <Text style={styles.selectedLocation} numberOfLines={1}>
+                  <Text
+                    style={styles.selectedLocation}
+                    numberOfLines={1}
+                    accessibilityLiveRegion="polite"
+                  >
                     ✓ {selectedLocation.name}
                   </Text>
                 )}
                 {locationError && (
-                  <Text style={styles.errorText}>{locationError}</Text>
+                  <Text
+                    style={styles.errorText}
+                    accessibilityLiveRegion="assertive"
+                  />
                 )}
                 {locationResults.length > 0 && (
                   <View style={styles.locationList}>
@@ -333,7 +357,10 @@ export default function NatalScreen() {
                   </View>
                 )}
                 {formError && (
-                  <Text style={[styles.errorText, { marginTop: 8 }]}>
+                  <Text
+                    style={[styles.errorText, { marginTop: 8 }]}
+                    accessibilityLiveRegion="assertive"
+                  >
                     {formError}
                   </Text>
                 )}
@@ -350,7 +377,9 @@ export default function NatalScreen() {
           </KeyboardAvoidingView>
         ) : (
           <>
-            <Text style={styles.screenTitle}>Your Natal Degrees</Text>
+            <Text style={styles.screenTitle} accessibilityRole="header">
+              Your Natal Degrees
+            </Text>
             <Text style={styles.fieldLabel}>
               Tap a planet to see its Sabian symbol
             </Text>
@@ -416,7 +445,9 @@ export default function NatalScreen() {
                       name="checkmark"
                       size={14}
                       color="rgba(200,185,240,0.8)"
-                      aria-hidden={true} 
+                      aria-hidden={true}
+                      accessibilityElementsHidden
+                      importantForAccessibility="no-hide-descendants"
                     />
                   )}
                 </TouchableOpacity>

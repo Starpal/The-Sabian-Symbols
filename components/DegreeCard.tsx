@@ -23,7 +23,9 @@ export default function DegreeCard({
           name={`zodiac-${sign.toLowerCase()}` as any}
           size={36}
           color="rgba(200,185,240,0.9)"
-          aria-hidden={true} 
+          aria-hidden={true}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         />
         <Text style={styles.signLabel}>
           {sign} · {degree}°
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent:"center",
+    justifyContent: "center",
     gap: 10,
     marginBottom: 20,
   },

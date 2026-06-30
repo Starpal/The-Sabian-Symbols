@@ -51,8 +51,19 @@ export default function LoadingScreen() {
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.starsContainer}>
+    <View
+      style={styles.container}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel="Loading"
+      accessibilityLiveRegion="polite"
+    >
+      <View
+        style={styles.starsContainer}
+        pointerEvents="none"
+        importantForAccessibility="no-hide-descendants"
+        accessibilityElementsHidden
+      >
         {STARS.map((star, i) => (
           <Star
             key={i}
@@ -62,8 +73,19 @@ export default function LoadingScreen() {
           />
         ))}
       </View>
-      <Animated.View style={{ opacity, transform: [{ rotate }] }}>
-        <Ionicons name="planet" size={52} color={colors.textPrimary} aria-hidden={true} />
+      <Animated.View
+        style={{ opacity, transform: [{ rotate }] }}
+        importantForAccessibility="no-hide-descendants"
+        accessibilityElementsHidden
+      >
+        <Ionicons
+          name="planet"
+          size={52}
+          color={colors.textPrimary}
+          aria-hidden={true}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
       </Animated.View>
     </View>
   );

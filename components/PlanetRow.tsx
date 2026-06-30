@@ -39,10 +39,19 @@ export default function PlanetRow({ label, sign, signKey, degrees }: Props) {
           size={18}
           color={colors.accentMuted}
           aria-hidden={true}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         />
         <Text style={styles.degrees}>{degrees}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={14} color={colors.textDisabled} aria-hidden={true} />
+      <Ionicons
+        name="chevron-forward"
+        size={14}
+        color={colors.textDisabled}
+        aria-hidden={true}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
     </TouchableOpacity>
   );
 }

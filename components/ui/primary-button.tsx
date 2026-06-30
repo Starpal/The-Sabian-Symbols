@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableOpacityProps,
-} from 'react-native';
-import { colors } from '@/constants/theme';
+} from "react-native";
+import { colors } from "@/constants/theme";
 
 type Props = TouchableOpacityProps & {
   label: string;
@@ -14,7 +14,14 @@ type Props = TouchableOpacityProps & {
   isLoading?: boolean;
 };
 
-export default function PrimaryButton({ label, isLoading, disabled, style, toScreen, ...rest }: Props) {
+export default function PrimaryButton({
+  label,
+  isLoading,
+  disabled,
+  style,
+  toScreen,
+  ...rest
+}: Props) {
   const isDisabled = disabled || isLoading;
 
   return (
@@ -25,8 +32,9 @@ export default function PrimaryButton({ label, isLoading, disabled, style, toScr
       accessibilityLabel={label}
       accessibilityHint={`Navigate to ${toScreen} screen.`}
       accessibilityRole="button"
-      accessibilityState={{ disabled: false }}
-      {...rest}>
+      accessibilityState={{ disabled: isDisabled, busy: isLoading }}
+      {...rest}
+    >
       {isLoading ? (
         <ActivityIndicator size="small" color={colors.accentMuted} />
       ) : (
@@ -39,7 +47,7 @@ export default function PrimaryButton({ label, isLoading, disabled, style, toScr
 }
 
 const styles = StyleSheet.create({
-    btn: {
+  btn: {
     width: "100%",
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,

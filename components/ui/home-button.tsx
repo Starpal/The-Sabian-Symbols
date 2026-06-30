@@ -33,7 +33,9 @@ export default function OracleButton({
               ? "rgba(200,185,240,0.8)"
               : "rgba(255, 255, 255, 0.8)"
           }
-          aria-hidden={true} 
+          aria-hidden={true}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         />
       </View>
 

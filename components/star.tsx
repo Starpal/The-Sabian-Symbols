@@ -29,7 +29,7 @@ export default function Star({ top, left, size }: StarProps) {
           duration: 800 + Math.random() * 800,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
 
     loop.start();
@@ -37,6 +37,9 @@ export default function Star({ top, left, size }: StarProps) {
 
   return (
     <Animated.View
+      pointerEvents="none"
+      importantForAccessibility="no-hide-descendants"
+      accessibilityElementsHidden
       style={{
         position: "absolute",
         top,
