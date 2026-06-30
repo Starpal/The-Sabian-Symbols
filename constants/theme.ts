@@ -8,7 +8,7 @@ export const colors = {
   textDisabled: 'rgba(255,255,255,0.2)',
   accent: 'rgba(200,185,240,0.85)',
   accentBorder: 'rgba(180,160,220,0.35)',
-  accentMuted: 'rgba(200,185,240,0.6)',
+  accentMuted: 'rgba(200,185,240,0.65)',
   divider: 'rgba(255,255,255,0.06)',
   dividerLight: 'rgba(255,255,255,0.1)',
 } as const;

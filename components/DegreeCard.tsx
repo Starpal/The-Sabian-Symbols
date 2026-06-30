@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_300Light",
     fontSize: 17,
     letterSpacing: 2,
-    color: "rgba(255,255,255,0.4)",
+    color: "rgba(255,255,255,0.55)",
     textTransform: "uppercase",
     marginBottom: 20,
     textAlign: "justify",

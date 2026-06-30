@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontSize: 12,
     letterSpacing: 3,
-    color: "rgba(255, 255, 255, 0.31)",
+    color: "rgba(255, 255, 255, 0.55)",
     textAlign: "center",
   },
   divider: {
