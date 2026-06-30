@@ -32,6 +32,8 @@ import { colors } from "@/constants/theme";
 import { fetchCoordinates, ApiError } from "@/services/api";
 import { computePlanetDegrees } from "@/services/astrology";
 import { LocationItem, PlanetDegree } from "@/types/api";
+import { validateNatalDate, sanitizeNumeric } from "@/utils/dateValidation";
+import { sheetStyles } from "@/constants/sheetStyles";
 
 interface FormState {
   day: string;
@@ -51,32 +53,6 @@ const INITIAL_FORM: FormState = {
   location: "",
 };
 
-// Gregorian leap year rule: divisible by 4, except centuries (divisible by 100)
-// unless they're also divisible by 400 — so 2024 and 2000 are leap years,
-// but 1900 and 2023 are not.
-const isLeapYear = (year: number): boolean =>
-  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-
-const daysInMonth = (monthIndex: number, year: number): number => {
-  if (monthIndex === 1) return isLeapYear(year) ? 29 : 28; // February
-  const month = monthIndex + 1; // 1-indexed for the formula below
-  return 31 - ((month - 1) % 7) % 2;
-};
-// Strips non-digits and clamps the value to [min, max] once it has enough
-// digits to be unambiguous. A partial entry like "2" (for an hour field
-// capped at 23) is left alone so the user can still type "23" — but "29"
-// gets pulled down to "23" the moment it goes out of range.
-const sanitizeNumeric = (
-  raw: string,
-  { maxLength, min, max }: { maxLength: number; min: number; max: number },
-): string => {
-  const digits = raw.replace(/[^0-9]/g, "").slice(0, maxLength);
-  if (digits === "") return digits;
-  const n = parseInt(digits, 10);
-  if (n > max) return String(max);
-  if (digits.length === maxLength && n < min) return String(min);
-  return digits;
-};
 const getErrorMessage = (error: unknown): string =>
   error instanceof ApiError
     ? error.message
@@ -154,35 +130,19 @@ export default function NatalScreen() {
 
   const currentYear = new Date().getFullYear();
 
-  // Day/hour/minutes are clamped to a plausible range as the user types
-  // (see sanitizeNumeric), but a day like 31 is only invalid in
-  // combination with a specific month/year (e.g. 31 February) — that
-  // can't be caught while typing, so it's validated here instead.
-  const validateDate = (): {
-    message: string;
-    field: "day" | "year";
-  } | null => {
-    const day = parseInt(form.day, 10);
-    const year = parseInt(form.year, 10);
-    const monthIndex = MONTHS.indexOf(form.month || "January");
-
-    if (year < 1 || year > currentYear + 1) {
-      return {
-        message: `Year must be greater than 0 (CE dates only).`,
-        field: "year",
-      };
-    }
-
-    const maxDay = daysInMonth(monthIndex, year);
-    if (day < 1 || day > maxDay) {
-      return {
-        message: `${form.month || "January"} doesn't have a day ${day}.`,
-        field: "day",
-      };
-    }
-
-    return null;
-  };
+  const dateValidationError = validateNatalDate(
+    form.day,
+    form.month,
+    form.year,
+    currentYear,
+  );
+  if (dateValidationError) {
+    setDateError(dateValidationError.message);
+    setDateErrorField(dateValidationError.field);
+    return;
+  }
+  setDateError(null);
+  setDateErrorField(null);
 
   const canSubmit = Boolean(form.day && form.year && selectedLocation);
 
@@ -190,7 +150,13 @@ export default function NatalScreen() {
     if (!canSubmit || !selectedLocation) return;
     Keyboard.dismiss();
 
-    const dateValidationError = validateDate();
+    const dateValidationError = validateNatalDate(
+      form.day,
+      form.month,
+      form.year,
+      currentYear,
+    );
+
     if (dateValidationError) {
       setDateError(dateValidationError.message);
       setDateErrorField(dateValidationError.field);
@@ -528,20 +494,20 @@ export default function NatalScreen() {
           index={-1}
           snapPoints={snapPoints}
           enablePanDownToClose
-          backgroundStyle={styles.sheetBg}
-          handleIndicatorStyle={styles.sheetHandle}
+          backgroundStyle={sheetStyles.sheetBg}
+          handleIndicatorStyle={sheetStyles.sheetHandle}
         >
           <BottomSheetFlatList
             data={MONTHS}
             keyExtractor={(item) => item}
-            contentContainerStyle={styles.sheetList}
+            contentContainerStyle={sheetStyles.sheetList}
             renderItem={({ item }) => {
               const isSelected = item === form.month;
               return (
                 <TouchableOpacity
                   style={[
-                    styles.sheetItem,
-                    isSelected && styles.sheetItemSelected,
+                    sheetStyles.sheetItem,
+                    isSelected && sheetStyles.sheetItemSelected,
                   ]}
                   onPress={() => {
                     updateForm("month", item);
@@ -553,8 +519,8 @@ export default function NatalScreen() {
                 >
                   <Text
                     style={[
-                      styles.sheetItemText,
-                      isSelected && styles.sheetItemTextSelected,
+                      sheetStyles.sheetItemText,
+                      isSelected && sheetStyles.sheetItemTextSelected,
                     ]}
                   >
                     {item}
@@ -703,37 +669,5 @@ const styles = StyleSheet.create({
     fontFamily: "CormorantGaramond_400Regular",
     fontSize: 16,
     color: "rgba(255,255,255,0.5)",
-  },
-  sheetBg: {
-    backgroundColor: colors.bgSheet,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.borderColor,
-  },
-  sheetHandle: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    width: 32,
-  },
-  sheetList: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  sheetItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.05)",
-  },
-  sheetItemSelected: {
-    borderBottomColor: "rgba(180,160,220,0.1)",
-  },
-  sheetItemText: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 20,
-    color: "rgba(255,255,255,0.5)",
-  },
-  sheetItemTextSelected: {
-    color: "rgba(200,185,240,0.9)",
   },
 });

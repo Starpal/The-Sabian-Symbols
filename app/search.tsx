@@ -16,6 +16,7 @@ import { SIGNS } from "@/constants/appConstants";
 import ScreenHeader from "@/components/ui/screen-header";
 import { colors } from "@/constants/theme";
 import PrimaryButton from "@/components/ui/primary-button";
+import { sheetStyles } from "@/constants/sheetStyles";
 
 type PickerType = "sign" | "degree" | null;
 
@@ -158,13 +159,13 @@ export default function SearchScreen() {
           snapPoints={snapPoints}
           enablePanDownToClose
           onClose={() => setActivePicker(null)}
-          backgroundStyle={styles.sheetBg}
-          handleIndicatorStyle={styles.sheetHandle}
+          backgroundStyle={sheetStyles.sheetBg}
+          handleIndicatorStyle={sheetStyles.sheetHandle}
         >
           <BottomSheetFlatList
             data={activePicker === "sign" ? SIGNS : DEGREES}
             keyExtractor={(item) => item.toString()}
-            contentContainerStyle={styles.sheetList}
+            contentContainerStyle={sheetStyles.sheetList}
             renderItem={({ item }) => {
               const isSign = activePicker === "sign";
               const isSelected = isSign
@@ -174,8 +175,8 @@ export default function SearchScreen() {
               return (
                 <TouchableOpacity
                   style={[
-                    styles.sheetItem,
-                    isSelected && styles.sheetItemSelected,
+                    sheetStyles.sheetItem,
+                    isSelected && sheetStyles.sheetItemSelected,
                   ]}
                   onPress={() =>
                     isSign
@@ -193,8 +194,8 @@ export default function SearchScreen() {
                 >
                   <Text
                     style={[
-                      styles.sheetItemText,
-                      isSelected && styles.sheetItemTextSelected,
+                      sheetStyles.sheetItemText,
+                      isSelected && sheetStyles.sheetItemTextSelected,
                     ]}
                   >
                     {isSign ? item : `${item}°`}
@@ -269,38 +270,5 @@ const styles = StyleSheet.create({
   fieldPlaceholder: {
     color: "rgba(255, 255, 255, 0.45)",
     fontSize: 20,
-  },
-  // Bottom Sheet
-  sheetBg: {
-    backgroundColor: colors.bgSheet,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.borderColor,
-  },
-  sheetHandle: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    width: 32,
-  },
-  sheetList: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  sheetItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.05)",
-  },
-  sheetItemSelected: {
-    borderBottomColor: "rgba(180,160,220,0.1)",
-  },
-  sheetItemText: {
-    fontFamily: "CormorantGaramond_400Regular",
-    fontSize: 20,
-    color: "rgba(255,255,255,0.5)",
-  },
-  sheetItemTextSelected: {
-    color: "rgba(200,185,240,0.9)",
   },
 });
