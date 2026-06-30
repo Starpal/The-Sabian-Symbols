@@ -21,6 +21,8 @@ The Sabian Symbols app provides an intuitive interface to explore the Sabian Sym
 - **♈ Astrological Navigation** — Browse degrees seamlessly with intuitive controls
 - **✨ Visual Poetry** — Elegant typography with Cormorant Garamond and Inter fonts
 - **📱 Cross-Platform** — iOS, Android, and Web support
+- **♿ Accessibility** — VoiceOver and TalkBack support for inclusive experience, increased Readability and Navigation accessibility
+- **🧪 Comprehensive Testing** — Unit and integration tests with Jest
 
 ## ✧ Tech Stack
 
@@ -33,6 +35,8 @@ The Sabian Symbols app provides an intuitive interface to explore the Sabian Sym
 - **Astrology Engine**: circular-natal-horoscope-js
 - **Geocoding**: Nominatim (OpenStreetMap)
 - **Language**: TypeScript 5.9
+- **Testing**: Jest + React Native Testing Library
+- **Accessibility**: VoiceOver (iOS) · TalkBack (Android)
 
 ## ✧ API Integration
 The app consumes a REST API for Sabian Symbol data:
