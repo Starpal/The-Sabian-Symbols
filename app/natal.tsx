@@ -51,6 +51,17 @@ const INITIAL_FORM: FormState = {
   location: "",
 };
 
+// Gregorian leap year rule: divisible by 4, except centuries (divisible by 100)
+// unless they're also divisible by 400 — so 2024 and 2000 are leap years,
+// but 1900 and 2023 are not.
+const isLeapYear = (year: number): boolean =>
+  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+const daysInMonth = (monthIndex: number, year: number): number => {
+  if (monthIndex === 1) return isLeapYear(year) ? 29 : 28; // February
+  const month = monthIndex + 1; // 1-indexed for the formula below
+  return 31 - ((month - 1) % 7) % 2;
+};
 // Strips non-digits and clamps the value to [min, max] once it has enough
 // digits to be unambiguous. A partial entry like "2" (for an hour field
 // capped at 23) is left alone so the user can still type "23" — but "29"
@@ -86,6 +97,9 @@ export default function NatalScreen() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
+  const [dateErrorField, setDateErrorField] = useState<"day" | "year" | null>(
+    null,
+  );
 
   const bottomSheetRef = useRef<BottomSheet>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -144,23 +158,27 @@ export default function NatalScreen() {
   // (see sanitizeNumeric), but a day like 31 is only invalid in
   // combination with a specific month/year (e.g. 31 February) — that
   // can't be caught while typing, so it's validated here instead.
-  const validateDate = (): string | null => {
+  const validateDate = (): {
+    message: string;
+    field: "day" | "year";
+  } | null => {
     const day = parseInt(form.day, 10);
     const year = parseInt(form.year, 10);
     const monthIndex = MONTHS.indexOf(form.month || "January");
 
-    if (year < 0 || year > currentYear + 1) {
-      return `Year must be between 0 and ${currentYear + 1}.`;
+    if (year < 1 || year > currentYear + 1) {
+      return {
+        message: `Year must be greater than 0 (CE dates only).`,
+        field: "year",
+      };
     }
 
-    const testDate = new Date(year, monthIndex, day);
-    const isRealDate =
-      testDate.getFullYear() === year &&
-      testDate.getMonth() === monthIndex &&
-      testDate.getDate() === day;
-
-    if (!isRealDate) {
-      return `${form.month || "January"} doesn't have a day ${day}.`;
+    const maxDay = daysInMonth(monthIndex, year);
+    if (day < 1 || day > maxDay) {
+      return {
+        message: `${form.month || "January"} doesn't have a day ${day}.`,
+        field: "day",
+      };
     }
 
     return null;
@@ -170,14 +188,16 @@ export default function NatalScreen() {
 
   const handleSubmit = () => {
     if (!canSubmit || !selectedLocation) return;
+    Keyboard.dismiss();
 
     const dateValidationError = validateDate();
     if (dateValidationError) {
-      setDateError(dateValidationError);
+      setDateError(dateValidationError.message);
+      setDateErrorField(dateValidationError.field);
       return;
     }
     setDateError(null);
-
+    setDateErrorField(null);
     setIsLoading(true);
     setFormError(null);
     try {
@@ -214,6 +234,7 @@ export default function NatalScreen() {
     setShowResults(false);
     setFormError(null);
     setDateError(null);
+    setDateErrorField(null);
   };
 
   const headerRightLabel = "New Chart";
@@ -262,7 +283,7 @@ export default function NatalScreen() {
                     style={[
                       styles.input,
                       styles.inputSmall,
-                      dateError && styles.inputError,
+                      dateErrorField === "day" && styles.inputError,
                     ]}
                     placeholder="Day"
                     placeholderTextColor="rgba(255, 255, 255, 0.45)"
@@ -271,6 +292,7 @@ export default function NatalScreen() {
                     value={form.day}
                     onChangeText={(v) => {
                       setDateError(null);
+                      setDateErrorField(null);
                       updateForm(
                         "day",
                         sanitizeNumeric(v, { maxLength: 2, min: 1, max: 31 }),
@@ -306,7 +328,7 @@ export default function NatalScreen() {
                     style={[
                       styles.input,
                       styles.inputSmall,
-                      dateError && styles.inputError,
+                      dateErrorField === "year" && styles.inputError,
                     ]}
                     placeholder="Year"
                     placeholderTextColor="rgba(255, 255, 255, 0.45)"
@@ -315,6 +337,7 @@ export default function NatalScreen() {
                     value={form.year}
                     onChangeText={(v) => {
                       setDateError(null);
+                      setDateErrorField(null);
                       updateForm("year", v.replace(/[^0-9]/g, "").slice(0, 4));
                     }}
                     accessibilityLabel="Year of birth"

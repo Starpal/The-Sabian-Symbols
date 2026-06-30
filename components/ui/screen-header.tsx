@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: 5,
     paddingTop: Platform.OS === "android" ? 8 : 0,
     paddingBottom: 16,
   },
