@@ -13,7 +13,7 @@ export default function LoadingScreen() {
     const spin = Animated.loop(
       Animated.timing(rotation, {
         toValue: 1,
-        duration: 5000,
+        duration: 6000,
         useNativeDriver: true,
       }),
     );

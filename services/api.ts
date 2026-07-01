@@ -1,11 +1,15 @@
 import { Degree, LocationItem, LocationResult } from "@/types/api";
+import packageJson from "@/package.json"
 
+const APP_NAME = packageJson.name;
+const APP_VERSION = packageJson.version;
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const defaultHeaders: HeadersInit = {
   "Content-Type": "application/json",
   Accept: "application/json",
   "cache-control": "no-cache",
+  "User-Agent": `${APP_NAME}/${APP_VERSION} (https://github.com/Starpal/The-Sabian-Symbols)`,
 };
 
 /**
@@ -18,6 +22,7 @@ const geocodingHeaders: HeadersInit = {
   Accept: "application/json",
   "cache-control": "no-cache",
   "Accept-Language": "en",
+  "User-Agent": `${APP_NAME}/${APP_VERSION} (https://github.com/Starpal/The-Sabian-Symbols)`,
 };
 
 class ApiError extends Error {

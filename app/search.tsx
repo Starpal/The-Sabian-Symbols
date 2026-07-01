@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans,
     fontSize: 14,
     letterSpacing: 3,
-    color: colors.accentText,
+    color: colors.textSecondary,
     textTransform: "uppercase",
     marginBottom: 20,
   },
@@ -268,6 +268,6 @@ const styles = StyleSheet.create({
   },
   fieldPlaceholder: {
     color: colors.placeholder,
-    fontSize: 22,
+    fontSize: 20,
   },
 });

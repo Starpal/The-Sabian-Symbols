@@ -79,12 +79,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: fonts.serifMediumBold,
-    fontSize: 82,
+    fontSize: 80,
     color: colors.borderColor,
     textAlign: "center",
-    lineHeight: 74,
+    lineHeight: 84,
     marginBottom: 20,
     paddingTop: 10,
+    paddingBottom: 10,
   },
   subtitle: {
     fontFamily: fonts.sansRegular,

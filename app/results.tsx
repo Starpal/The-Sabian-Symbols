@@ -57,17 +57,23 @@ export default function ResultsScreen() {
   const randomQuery = useRandomDegree(isRandomMode && !seeded);
   const searchQuery = useSearchDegree(sign, degree, seeded);
 
-  useEffect(() => {
-    if (!randomQuery.data || seeded) return;
-    setSign(randomQuery.data.sign);
-    setDegree(randomQuery.data.degree);
-    setSeeded(true);
-  }, [randomQuery.data, seeded]);
+ useEffect(() => {
+  if (!randomQuery.data || seeded) return;
+  setSign(randomQuery.data.sign);
+  setDegree(randomQuery.data.degree);
+  setSeeded(true);
+}, [randomQuery.data, seeded]);
 
-  const result = seeded ? searchQuery.data : undefined;
-  const isLoading = seeded ? searchQuery.isFetching : randomQuery.isLoading;
-  const isError = seeded ? searchQuery.isError : randomQuery.isError;
-  const error = seeded ? searchQuery.error : randomQuery.error;
+const result = seeded
+  ? (searchQuery.data ?? (isRandomMode ? randomQuery.data : undefined))
+  : undefined;
+
+const isLoading = seeded
+  ? searchQuery.isFetching && !result
+  : randomQuery.isLoading;
+
+const isError = seeded ? searchQuery.isError : randomQuery.isError;
+const error = seeded ? searchQuery.error : randomQuery.error;
 
   const navigate = useCallback(
     (direction: "plus" | "minus") => {

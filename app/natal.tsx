@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import BottomSheet, { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import React, {
   useCallback,
   useEffect,
@@ -19,10 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  GestureHandlerRootView,
-  ScrollView,
-} from "react-native-gesture-handler";
+import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PlanetRow from "@/components/PlanetRow";
 import ScreenHeader from "@/components/ui/screen-header";
@@ -77,7 +74,7 @@ export default function NatalScreen() {
     null,
   );
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   const snapPoints = useMemo(() => ["45%"], []);
@@ -86,14 +83,13 @@ export default function NatalScreen() {
   useEffect(() => () => abortRef.current?.abort(), []);
 
   const updateForm = (field: keyof FormState, value: string) => {
-    // ✅ Resetta gli errori di validazione quando l'utente modifica il campo
     if (field === "day" || field === "year" || field === "month") {
       setDateError(null);
       setDateErrorField(null);
     }
-    
+
     setForm((prev) => ({ ...prev, [field]: value }));
-    
+
     if (field === "location") {
       setSelectedLocation(null);
       setLocationResults([]);
@@ -134,15 +130,10 @@ export default function NatalScreen() {
 
   const currentYear = new Date().getFullYear();
 
-  // ✅ Calcola canSubmit - SENZA validazione
   const canSubmit = Boolean(
-    form.day && 
-    form.year && 
-    selectedLocation &&
-    !isLoading
+    form.day && form.year && selectedLocation && !isLoading,
   );
 
-  // ✅ Funzione di validazione - chiamata SOLO quando serve
   const validateForm = useCallback(() => {
     if (!form.day || !form.year || !selectedLocation) {
       return { valid: false, error: "Please fill in all required fields" };
@@ -156,25 +147,24 @@ export default function NatalScreen() {
     );
 
     if (dateValidationError) {
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         error: dateValidationError.message,
-        field: dateValidationError.field 
+        field: dateValidationError.field,
       };
     }
 
     return { valid: true };
   }, [form.day, form.month, form.year, selectedLocation, currentYear]);
 
-  // ✅ handleSubmit - validazione QUI
   const handleSubmit = useCallback(() => {
     if (!selectedLocation) return;
     Keyboard.dismiss();
 
     const validation = validateForm();
-    
+
     if (!validation.valid) {
-      if (validation.field === 'day' || validation.field === 'year') {
+      if (validation.field === "day" || validation.field === "year") {
         setDateError(validation.error || null);
         setDateErrorField(validation.field || null);
       } else {
@@ -183,12 +173,11 @@ export default function NatalScreen() {
       return;
     }
 
-    // ✅ Reset errori prima di procedere
     setDateError(null);
     setDateErrorField(null);
     setFormError(null);
     setIsLoading(true);
-    
+
     try {
       const monthIndex = MONTHS.indexOf(form.month || "January");
       const hour = parseInt(form.hour || "12", 10);
@@ -230,337 +219,346 @@ export default function NatalScreen() {
   const screenTitle = "Natal chart";
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <ScreenHeader
-          onBack={showResults ? () => setShowResults(false) : undefined}
-          right={
-            showResults && (
-              <TouchableOpacity
-                onPress={handleReset}
-                accessibilityLabel={headerRightLabel}
-                accessibilityRole="button"
-                accessibilityHint={`Navigate to ${screenTitle}`}
-                style={styles.newChartBtn}
-              >
-                <Text style={styles.newChartBtnText}>{headerRightLabel}</Text>
-              </TouchableOpacity>
-            )
-          }
-        />
-
-        {!showResults ? (
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <ScrollView
-              contentContainerStyle={{ flexGrow: 1 }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.container}>
+      <ScreenHeader
+        onBack={showResults ? () => setShowResults(false) : undefined}
+        right={
+          showResults && (
+            <TouchableOpacity
+              onPress={handleReset}
+              accessibilityLabel={headerRightLabel}
+              accessibilityRole="button"
+              accessibilityHint={`Navigate to ${screenTitle}`}
+              style={styles.newChartBtn}
             >
-              <View style={{ flex: 1 }}>
-                <Text style={styles.screenTitle} accessibilityRole="header">
-                  {screenTitle}
-                </Text>
+              <Text style={styles.newChartBtnText}>{headerRightLabel}</Text>
+            </TouchableOpacity>
+          )
+        }
+      />
 
-                {/* Date row */}
-                <Text style={styles.fieldLabel}>Date of birth</Text>
-                <View
-                  style={[styles.dateRow, dateError && styles.dateRowWithError]}
-                >
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.inputSmall,
-                      dateErrorField === "day" && styles.inputError,
-                    ]}
-                    placeholder="Day"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                    maxLength={2}
-                    value={form.day}
-                    onChangeText={(v) => {
-                      setDateError(null);
-                      setDateErrorField(null);
-                      updateForm(
-                        "day",
-                        sanitizeNumeric(v, { maxLength: 2, min: 1, max: 31 }),
-                      );
-                    }}
-                    accessibilityLabel="Day of birth"
-                    accessibilityHint={
-                      dateError
-                        ? `Invalid. ${dateError}`
-                        : "Two digit day, between 1 and 31"
-                    }
-                  />
-                  <TouchableOpacity
-                    style={[styles.input, styles.inputMonth]}
-                    onPress={() => {
-                      Keyboard.dismiss();
-                      bottomSheetRef.current?.expand();
-                    }}
-                    accessibilityLabel={form.month || "Month"}
-                    accessibilityRole="button"
-                    accessibilityHint={"Insert birthday Month"}
-                    accessibilityState={{ expanded: false }}
-                  >
-                    <Text
-                      style={
-                        form.month ? styles.inputText : styles.inputPlaceholder
-                      }
-                    >
-                      {form.month || "Month"}
-                    </Text>
-                  </TouchableOpacity>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      styles.inputSmall,
-                      dateErrorField === "year" && styles.inputError,
-                    ]}
-                    placeholder="Year"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                    maxLength={4}
-                    value={form.year}
-                    onChangeText={(v) => {
-                      setDateError(null);
-                      setDateErrorField(null);
-                      updateForm("year", v.replace(/[^0-9]/g, "").slice(0, 4));
-                    }}
-                    accessibilityLabel="Year of birth"
-                    accessibilityHint={
-                      dateError ? `Invalid. ${dateError}` : "Four digit year"
-                    }
-                  />
-                </View>
-                {dateError && (
-                  <Text
-                    style={styles.errorText}
-                    accessibilityLiveRegion="assertive"
-                  >
-                    {dateError}
-                  </Text>
-                )}
-
-                {/* Time row */}
-                <Text style={styles.fieldLabel}>
-                  Time of birth <Text style={styles.optional}>(optional)</Text>
-                </Text>
-                <View style={styles.dateRow}>
-                  <TextInput
-                    style={[styles.input, styles.inputSmall]}
-                    placeholder="Hour"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                    maxLength={2}
-                    value={form.hour}
-                    onChangeText={(v) =>
-                      updateForm(
-                        "hour",
-                        sanitizeNumeric(v, { maxLength: 2, min: 0, max: 23 }),
-                      )
-                    }
-                    accessibilityLabel="Hour of birth, optional"
-                    accessibilityHint="24 hour format"
-                  />
-                  <Text style={styles.colon}>:</Text>
-                  <TextInput
-                    style={[styles.input, styles.inputSmall]}
-                    placeholder="Min"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                    maxLength={2}
-                    value={form.minutes}
-                    onChangeText={(v) =>
-                      updateForm(
-                        "minutes",
-                        sanitizeNumeric(v, { maxLength: 2, min: 0, max: 59 }),
-                      )
-                    }
-                    accessibilityLabel="Minute of birth, optional"
-                  />
-                </View>
-
-                {/* Location */}
-                <Text style={styles.fieldLabel}>Place of birth</Text>
-                <View style={styles.locationRow}>
-                  <TextInput
-                    style={[styles.input, { flex: 1 }]}
-                    placeholder="City, country"
-                    placeholderTextColor={colors.placeholder}
-                    value={form.location}
-                    onChangeText={(v) => updateForm("location", v)}
-                    onSubmitEditing={() => {
-                      Keyboard.dismiss();
-                      handleLocationSearch();
-                    }}
-                    returnKeyType="search"
-                    accessibilityLabel="Place of birth"
-                    accessibilityHint="City and country, then search"
-                  />
-                  <TouchableOpacity
-                    style={styles.searchIconBtn}
-                    onPress={() => {
-                      Keyboard.dismiss();
-                      handleLocationSearch();
-                    }}
-                    accessibilityLabel={
-                      isLoadingLocations ? "Searching" : "Search"
-                    }
-                    accessibilityRole="button"
-                    accessibilityHint={"Search for location"}
-                    accessibilityState={{ busy: isLoadingLocations }}
-                  >
-                    {isLoadingLocations ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={colors.accentMuted}
-                      />
-                    ) : (
-                      <Ionicons
-                        name="search-outline"
-                        size={16}
-                        color={colors.accentMuted}
-                        aria-hidden={true}
-                      />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {selectedLocation && (
-                  <Text
-                    style={styles.selectedLocation}
-                    numberOfLines={1}
-                    accessibilityLiveRegion="polite"
-                  >
-                    ✓ {selectedLocation.name}
-                  </Text>
-                )}
-                {locationError && (
-                  <Text
-                    style={styles.errorText}
-                    accessibilityLiveRegion="assertive"
-                  >
-                    {locationError}
-                  </Text>
-                )}
-                {locationResults.length > 0 && (
-                  <View style={styles.locationList}>
-                    {locationResults.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        style={styles.locationItem}
-                        onPress={() => handleSelectLocation(item)}
-                        activeOpacity={0.6}
-                        accessibilityLabel={item.name}
-                        accessibilityRole="button"
-                        accessibilityHint={"Select Location item"}
-                      >
-                        <Text style={styles.locationItemText} numberOfLines={2}>
-                          {item.name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-                {formError && (
-                  <Text
-                    style={[styles.errorText, { marginTop: 8 }]}
-                    accessibilityLiveRegion="assertive"
-                  >
-                    {formError}
-                  </Text>
-                )}
-              </View>
-            </ScrollView>
-            {/* Submit */}
-            <PrimaryButton
-              label="Calculate"
-              toScreen="Your Natal Degrees"
-              isLoading={isLoading}
-              disabled={!canSubmit}
-              onPress={handleSubmit}
-            />
-          </KeyboardAvoidingView>
-        ) : (
-          <>
-            <Text style={styles.screenTitle} accessibilityRole="header">
-              Your Natal Degrees
-            </Text>
-            <Text style={styles.fieldLabel}>
-              Tap a planet to see its Sabian symbol
-            </Text>
-            <FlatList
-              data={planetDegrees}
-              keyExtractor={(item) => item.key}
-              renderItem={({ item }) => (
-                <PlanetRow
-                  label={item.label}
-                  sign={item.sign}
-                  signKey={item.signKey}
-                  degrees={item.degrees}
-                />
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 32 }}
-            />
-          </>
-        )}
-
-        {/* Bottom Sheet */}
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={-1}
-          snapPoints={snapPoints}
-          enablePanDownToClose
-          backgroundStyle={sheetStyles.sheetBg}
-          handleIndicatorStyle={sheetStyles.sheetHandle}
+      {!showResults ? (
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <BottomSheetFlatList
-            data={MONTHS}
-            keyExtractor={(item) => item}
-            contentContainerStyle={sheetStyles.sheetList}
-            renderItem={({ item }) => {
-              const isSelected = item === form.month;
-              return (
-                <TouchableOpacity
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.screenTitle} accessibilityRole="header">
+                {screenTitle}
+              </Text>
+
+              {/* Date row */}
+              <Text style={styles.fieldLabel}>Date of birth</Text>
+              <View
+                style={[styles.dateRow, dateError && styles.dateRowWithError]}
+              >
+                <TextInput
                   style={[
-                    sheetStyles.sheetItem,
-                    isSelected && sheetStyles.sheetItemSelected,
+                    styles.input,
+                    styles.inputSmall,
+                    dateErrorField === "day" && styles.inputError,
                   ]}
-                  onPress={() => {
-                    updateForm("month", item);
-                    bottomSheetRef.current?.close();
+                  placeholder="Day"
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.day}
+                  onChangeText={(v) => {
+                    setDateError(null);
+                    setDateErrorField(null);
+                    updateForm(
+                      "day",
+                      sanitizeNumeric(v, { maxLength: 2, min: 1, max: 31 }),
+                    );
                   }}
-                  activeOpacity={0.6}
-                  accessibilityLabel={item}
+                  accessibilityLabel="Day of birth"
+                  accessibilityHint={
+                    dateError
+                      ? `Invalid. ${dateError}`
+                      : "Two digit day, between 1 and 31"
+                  }
+                />
+                <TouchableOpacity
+                  style={[styles.input, styles.inputMonth]}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    bottomSheetRef.current?.present();
+                  }}
+                  accessibilityLabel={form.month || "Month"}
                   accessibilityRole="button"
+                  accessibilityHint={"Insert birthday Month"}
+                  accessibilityState={{ expanded: false }}
                 >
                   <Text
-                    style={[
-                      sheetStyles.sheetItemText,
-                      isSelected && sheetStyles.sheetItemTextSelected,
-                    ]}
+                    style={
+                      form.month ? styles.inputText : styles.inputPlaceholder
+                    }
                   >
-                    {item}
+                    {form.month || "Month"}
                   </Text>
-                  {isSelected && (
+                </TouchableOpacity>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.inputSmall,
+                    dateErrorField === "year" && styles.inputError,
+                  ]}
+                  placeholder="Year"
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                  maxLength={4}
+                  value={form.year}
+                  onChangeText={(v) => {
+                    setDateError(null);
+                    setDateErrorField(null);
+                    updateForm("year", v.replace(/[^0-9]/g, "").slice(0, 4));
+                  }}
+                  accessibilityLabel="Year of birth"
+                  accessibilityHint={
+                    dateError ? `Invalid. ${dateError}` : "Four digit year"
+                  }
+                />
+              </View>
+              {dateError && (
+                <Text
+                  style={styles.errorText}
+                  accessibilityLiveRegion="assertive"
+                >
+                  {dateError}
+                </Text>
+              )}
+
+              {/* Time row */}
+              <Text style={styles.fieldLabel}>
+                Time of birth <Text style={styles.optional}>(optional)</Text>
+              </Text>
+              <View style={styles.dateRow}>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Hour"
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.hour}
+                  onChangeText={(v) =>
+                    updateForm(
+                      "hour",
+                      sanitizeNumeric(v, { maxLength: 2, min: 0, max: 23 }),
+                    )
+                  }
+                  accessibilityLabel="Hour of birth, optional"
+                  accessibilityHint="24 hour format"
+                />
+                <Text style={styles.colon}>:</Text>
+                <TextInput
+                  style={[styles.input, styles.inputSmall]}
+                  placeholder="Min"
+                  placeholderTextColor={colors.placeholder}
+                  keyboardType="numeric"
+                  maxLength={2}
+                  value={form.minutes}
+                  onChangeText={(v) =>
+                    updateForm(
+                      "minutes",
+                      sanitizeNumeric(v, { maxLength: 2, min: 0, max: 59 }),
+                    )
+                  }
+                  accessibilityLabel="Minute of birth, optional"
+                />
+              </View>
+
+              {/* Location */}
+              <Text style={styles.fieldLabel}>Place of birth</Text>
+              <View style={styles.locationRow}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      flex: 1,
+                      ...(Platform.OS === "android" && {
+                        paddingLeft: 16,
+                        paddingRight: 12,
+                        includeFontPadding: false,
+                        textAlign: "left",
+                      }),
+                    },
+                  ]}
+                  placeholder="City, country"
+                  placeholderTextColor={colors.placeholder}
+                  value={form.location}
+                  onChangeText={(v) => updateForm("location", v)}
+                  onSubmitEditing={() => {
+                    Keyboard.dismiss();
+                    handleLocationSearch();
+                  }}
+                  returnKeyType="search"
+                  accessibilityLabel="Place of birth"
+                  accessibilityHint="City and country, then search"
+                />
+                <TouchableOpacity
+                  style={styles.searchIconBtn}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    handleLocationSearch();
+                  }}
+                  accessibilityLabel={
+                    isLoadingLocations ? "Searching" : "Search"
+                  }
+                  accessibilityRole="button"
+                  accessibilityHint={"Search for location"}
+                  accessibilityState={{ busy: isLoadingLocations }}
+                >
+                  {isLoadingLocations ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={colors.accentMuted}
+                    />
+                  ) : (
                     <Ionicons
-                      name="checkmark"
-                      size={14}
-                      color={colors.accentText}
+                      name="search-outline"
+                      size={16}
+                      color={colors.accentMuted}
                       aria-hidden={true}
                     />
                   )}
                 </TouchableOpacity>
-              );
-            }}
+              </View>
+              {selectedLocation && (
+                <Text
+                  style={styles.selectedLocation}
+                  numberOfLines={1}
+                  accessibilityLiveRegion="polite"
+                >
+                  ✓ {selectedLocation.name}
+                </Text>
+              )}
+              {locationError && (
+                <Text
+                  style={styles.errorText}
+                  accessibilityLiveRegion="assertive"
+                >
+                  {locationError}
+                </Text>
+              )}
+              {locationResults.length > 0 && (
+                <View style={styles.locationList}>
+                  {locationResults.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={styles.locationItem}
+                      onPress={() => handleSelectLocation(item)}
+                      activeOpacity={0.6}
+                      accessibilityLabel={item.name}
+                      accessibilityRole="button"
+                      accessibilityHint={"Select Location item"}
+                    >
+                      <Text style={styles.locationItemText} numberOfLines={2}>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+              {formError && (
+                <Text
+                  style={[styles.errorText, { marginTop: 8 }]}
+                  accessibilityLiveRegion="assertive"
+                >
+                  {formError}
+                </Text>
+              )}
+            </View>
+          </ScrollView>
+          {/* Submit */}
+          <PrimaryButton
+            label="Calculate"
+            toScreen="Your Natal Degrees"
+            isLoading={isLoading}
+            disabled={!canSubmit}
+            onPress={handleSubmit}
           />
-        </BottomSheet>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+        </KeyboardAvoidingView>
+      ) : (
+        <>
+          <Text style={styles.screenTitle} accessibilityRole="header">
+            Your Natal Degrees
+          </Text>
+          <Text style={styles.fieldLabel}>
+            Tap a planet to see its Sabian symbol
+          </Text>
+          <FlatList
+            data={planetDegrees}
+            keyExtractor={(item) => item.key}
+            renderItem={({ item }) => (
+              <PlanetRow
+                label={item.label}
+                sign={item.sign}
+                signKey={item.signKey}
+                degrees={item.degrees}
+              />
+            )}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 32 }}
+          />
+        </>
+      )}
+
+      {/* Month picker — BottomSheetModal is invisible until present() is called,
+          so unlike BottomSheet with index={-1} it never leaks a peek on Android */}
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        backgroundStyle={sheetStyles.sheetBg}
+        handleIndicatorStyle={sheetStyles.sheetHandle}
+      >
+        <BottomSheetFlatList
+          data={MONTHS}
+          keyExtractor={(item) => item}
+          contentContainerStyle={sheetStyles.sheetList}
+          renderItem={({ item }) => {
+            const isSelected = item === form.month;
+            return (
+              <TouchableOpacity
+                style={[
+                  sheetStyles.sheetItem,
+                  isSelected && sheetStyles.sheetItemSelected,
+                ]}
+                onPress={() => {
+                  updateForm("month", item);
+                  bottomSheetRef.current?.dismiss();
+                }}
+                activeOpacity={0.6}
+                accessibilityLabel={item}
+                accessibilityRole="button"
+              >
+                <Text
+                  style={[
+                    sheetStyles.sheetItemText,
+                    isSelected && sheetStyles.sheetItemTextSelected,
+                  ]}
+                >
+                  {item}
+                </Text>
+                {isSelected && (
+                  <Ionicons
+                    name="checkmark"
+                    size={14}
+                    color={colors.accentText}
+                    aria-hidden={true}
+                  />
+                )}
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </BottomSheetModal>
+    </SafeAreaView>
   );
 }
 
@@ -570,13 +568,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     paddingHorizontal: 24,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: Platform.OS === "android" ? 8 : 0,
-    paddingBottom: 16,
-  },
   newChartBtnText: {
     fontFamily: fonts.sans,
     fontSize: 11,
@@ -584,19 +575,18 @@ const styles = StyleSheet.create({
     color: colors.accentMuted,
     textTransform: "uppercase",
   },
-  newChartBtn:{
+  newChartBtn: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.accentBorder,
-    
     paddingHorizontal: 6,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     minHeight: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   screenTitle: {
     fontFamily: fonts.serif,
-    fontSize: 44,
+    fontSize: 42,
     color: colors.textPrimary,
     marginTop: 20,
     marginBottom: 60,
