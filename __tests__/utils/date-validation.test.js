@@ -1,4 +1,4 @@
-import { isLeapYear, daysInMonth, validateNatalDate } from "@/utils/date-validation";
+import { isLeapYear, daysInMonth, validateNatalDate } from "@/utils/dateValidation";
 
 describe("isLeapYear", () => {
   it("identifies century exceptions correctly", () => {
