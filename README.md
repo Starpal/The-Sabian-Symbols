@@ -11,7 +11,15 @@
 
 The Sabian Symbols app provides an intuitive interface to explore the Sabian Symbols, a profound divination tool and psychological mirror. Users can search specific degrees, generate random symbols, or compute their complete natal chart.
 
-**Live Demo**: [Expo Go](https://expo.dev/@yourusername/sabian-symbols) *(coming soon)*
+## Live Demo
+
+📱 Scan or open with [Expo Go](https://expo.dev/go):
+
+- **iOS:** [Open demo](https://expo.dev/preview/update?message=eas+build+for+expo+go%2C+add+metro.config++for+entrypoint+setting+of+npm+package&updateRuntimeVersion=1.0.0&createdAt=2026-07-07T14%3A57%3A59.889Z&slug=exp&projectId=060afb0f-313e-4351-90e7-abc991878f66&group=e9f58755-2661-47ff-a8d7-70dbd433682d) 
+  ![QR iOS](./assets/images/expo-qr-android.png)
+
+- **Android:** [Open demo](https://expo.dev/preview/update?message=eas+build+for+expo+go%2C+add+metro.config++for+entrypoint+setting+of+npm+package&updateRuntimeVersion=1.0.0&createdAt=2026-07-07T15%3A04%3A20.122Z&slug=exp&projectId=060afb0f-313e-4351-90e7-abc991878f66&group=b8f503d5-0ea8-41b9-9fd6-b6a26de382f4)
+  ![QR Android](./assets/images/expo-qr-ios.png)
 
 ## ✧ Features
 
