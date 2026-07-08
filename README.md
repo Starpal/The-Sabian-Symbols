@@ -3,7 +3,6 @@
 [![Expo](https://img.shields.io/badge/Expo-54.0-blue)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81-61dafb)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6)](https://www.typescriptlang.org)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 > A mystical React Native application exploring the 360 degrees of the zodiac through the Sabian Symbols — a system of 360 evocative images for each degree of the zodiac.
 
