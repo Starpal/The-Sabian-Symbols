@@ -11,9 +11,6 @@
 
 The Sabian Symbols app provides an intuitive interface to explore the Sabian Symbols, a profound divination tool and psychological mirror. Users can search specific degrees, generate random symbols, or compute their complete natal chart.
 
-## Live Demo
-
-
 ## ✧ Features
 
 - **🔍 Search a Degree** — Explore any zodiac sign and degree combination
