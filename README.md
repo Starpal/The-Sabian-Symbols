@@ -36,12 +36,15 @@ The Sabian Symbols app provides an intuitive interface to explore the Sabian Sym
 - **Accessibility**: VoiceOver (iOS) · TalkBack (Android)
 
 ## ✧ API Integration
-The app consumes a REST API for Sabian Symbol data:
+The app consumes a REST API [https://github.com/Starpal/zodiac-server] for Sabian Symbol data:
 
 **Endpoint,	Method, Description**
 /degree	GET	Fetch a random symbol
+
 /DBdegree	POST	Fetch symbol by sign + degree
+
 Nominatim	GET	Geocode location for natal chart
+
 
 ## ✧ Installation
 
