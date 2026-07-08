@@ -39,6 +39,7 @@ The Sabian Symbols app provides an intuitive interface to explore the Sabian Sym
 The app consumes a REST API [https://github.com/Starpal/zodiac-server] for Sabian Symbol data:
 
 **Endpoint,	Method, Description**
+
 /degree	GET	Fetch a random symbol
 
 /DBdegree	POST	Fetch symbol by sign + degree
